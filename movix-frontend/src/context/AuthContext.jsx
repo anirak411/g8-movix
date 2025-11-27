@@ -3,43 +3,56 @@ import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext(null);
 
-export const useAuth = () => {
-    return useContext(AuthContext);
-};
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-    const [isLoggedIn, setIsLoggedIn] = useState(() => !!localStorage.getItem('userToken'));
     const navigate = useNavigate();
 
-    const login = (token, email) => {
+    // The user state now includes the 'id' retrieved from local storage
+    const [user, setUser] = useState(() => {
+        const token = localStorage.getItem('userToken');
+        const email = localStorage.getItem('userEmail');
+        const id = localStorage.getItem('userId'); // <<<--- NEW: Get the ID
+        
+        // Return null unless ALL three essential parts are present
+        return token && email && id ? { token, email, id } : null; 
+    });
+
+    // The login function now takes 'id' and stores it
+    const login = (token, email, id) => { // <<<--- CHANGED: Accepts ID
         localStorage.setItem('userToken', token);
-        if (email) localStorage.setItem('userEmail', email);
-        setIsLoggedIn(true);
+        localStorage.setItem('userEmail', email);
+        localStorage.setItem('userId', id); // <<<--- NEW: Store the ID
+        
+        setUser({ token, email, id }); // <<<--- CHANGED: Store ID in state
     };
 
     const logout = () => {
         localStorage.removeItem('userToken');
         localStorage.removeItem('userEmail');
-        setIsLoggedIn(false);
+        localStorage.removeItem('userId'); // <<<--- NEW: Remove the ID
+        setUser(null);
         navigate('/login', { replace: true });
     };
 
     const value = useMemo(() => ({
-        isLoggedIn,
+        user,
         login,
         logout,
-    }), [isLoggedIn]);
+        isLoggedIn: !!user
+    }), [user]);
 
+    // Sync with localStorage
     useEffect(() => {
         const handleStorageChange = () => {
-            setIsLoggedIn(!!localStorage.getItem('userToken'));
+            const token = localStorage.getItem('userToken');
+            const email = localStorage.getItem('userEmail');
+            const id = localStorage.getItem('userId'); // <<<--- NEW: Get the ID
+            setUser(token && email && id ? { token, email, id } : null); // <<<--- Check and set ID
         };
 
         window.addEventListener('storage', handleStorageChange);
-
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
-        };
+        return () => window.removeEventListener('storage', handleStorageChange);
     }, []);
 
     return (
