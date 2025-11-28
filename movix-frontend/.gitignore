@@ -22,3 +22,66 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+HELP.md
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+# mac system files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# intellij / ide files
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+
+# java / maven
+target/
+*.class
+.mvn/
+mvnw
+mvnw.cmd
+
+# node / frontend
+node_modules/
+dist/
+build/
+npm-debug.log
+yarn-error.log
+movix-frontend/.env
+.env.local
