@@ -1,24 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { MapPin, ChevronLeft } from 'lucide-react';
 import '../css/seatselection.css';
-import { useAuth } from '../context/AuthContext'; 
+import { useAuth } from '../context/AuthContext';
 
 const SeatSelectionPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { user } = useAuth(); // get logged-in user info. Now 'user' should have the 'id' property.
+    const { user } = useAuth();
     const movie = location.state?.movie || { title: 'Unknown Movie', image: '' };
 
-    const dates = [
-        { day: 9, month: 'NOV', fullDate: '2025-11-09' },
-        { day: 10, month: 'NOV', fullDate: '2025-11-10' },
-        { day: 11, month: 'NOV', fullDate: '2025-11-11' },
-        { day: 12, month: 'NOV', fullDate: '2025-11-12' },
-        { day: 13, month: 'NOV', fullDate: '2025-11-13' },
-        { day: 14, month: 'NOV', fullDate: '2025-11-14' },
-    ];
+    const dates = useMemo(() => {
+        const dateList = [];
+        const today = new Date();
+
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(today);
+            date.setDate(today.getDate() + i);
+
+            const year = date.getFullYear();
+            const monthNum = String(date.getMonth() + 1).padStart(2, '0');
+            const dayNum = String(date.getDate()).padStart(2, '0');
+            const fullDateStr = `${year}-${monthNum}-${dayNum}`;
+
+            dateList.push({
+                day: date.getDate(),
+                month: date.toLocaleString('default', { month: 'short' }).toUpperCase(),
+                fullDate: fullDateStr
+            });
+        }
+        return dateList;
+    }, []);
 
     const cinemas = ['CINEMA1', 'CINEMA2', 'CINEMA3'];
     const showTimes = ['10:00', '13:00', '16:00', '19:00'];
@@ -29,7 +42,6 @@ const SeatSelectionPage = () => {
     const [selectedSeats, setSelectedSeats] = useState([]);
     const [seats, setSeats] = useState(Array(6).fill(0).map(() => Array(15).fill(0)));
 
-    // Fetch booked seats whenever movie/date/time changes
     useEffect(() => {
         const fetchBookedSeats = async () => {
             try {
@@ -41,27 +53,27 @@ const SeatSelectionPage = () => {
                     },
                 });
 
-                const bookedSeats = response.data; // e.g., ["A1", "B3"]
+                const bookedSeats = response.data;
 
                 const newSeats = seats.map((row, rowIndex) =>
                     row.map((seat, seatIndex) => {
                         const seatId = `${String.fromCharCode(65 + rowIndex)}${seatIndex + 1}`;
-                        return bookedSeats.includes(seatId) ? 1 : 0; // 1 = booked
+                        return bookedSeats.includes(seatId) ? 1 : 0;
                     })
                 );
 
                 setSeats(newSeats);
                 setSelectedSeats([]);
             } catch (error) {
-                console.error('Error fetching booked seats', error);
+                console.error(error);
             }
         };
 
         fetchBookedSeats();
-    }, [selectedDate, selectedCinema, selectedTime, movie.title]);
+    }, [selectedDate, selectedCinema, selectedTime, movie.title, dates]);
 
     const handleSeatClick = (rowIndex, seatIndex) => {
-        if (seats[rowIndex][seatIndex] === 1) return; // can't select booked seats
+        if (seats[rowIndex][seatIndex] === 1) return;
 
         const newSeats = [...seats];
         const seatId = `${String.fromCharCode(65 + rowIndex)}${seatIndex + 1}`;
@@ -98,13 +110,12 @@ const SeatSelectionPage = () => {
         }
 
         try {
-            // Send fields as simple scalars/arrays matching your DB columns
             const payload = {
-                moviename: movie.title,         
-                userid: user.id, // <<<--- THE CRITICAL FIX: Sending the database ID, not the email
+                moviename: movie.title,
+                userid: user.id,
                 show_date: dates[selectedDate].fullDate,
                 show_time: selectedTime,
-                seats: selectedSeats,          
+                seats: selectedSeats,
                 total_price: selectedSeats.length * 200
             };
 
@@ -113,7 +124,6 @@ const SeatSelectionPage = () => {
             alert(`Successfully booked seats: ${selectedSeats.join(', ')}`);
             setSelectedSeats([]);
 
-            // Refresh seats after booking
             const response = await axios.get('http://localhost:8081/booked-seats', {
                 params: {
                     moviename: movie.title,
@@ -133,19 +143,17 @@ const SeatSelectionPage = () => {
             setSeats(newSeats);
         } catch (err) {
             console.error(err);
-            // This alert remains the same, but the error should no longer be triggered by FK violation
-            alert('Some seats may have been taken. Refresh and try again.'); 
+            alert('Some seats may have been taken. Refresh and try again.');
         }
     };
 
-    // ... (The rest of the component remains unchanged)
     return (
         <div className="seat-page">
             <div className="seat-poster">
                 <button className="back-btn" onClick={() => navigate('/landing')}>
                     <ChevronLeft size={24} />
                 </button>
-                <img src={movie.image} alt={movie.title} />
+                <img src={movie.portraitImage || movie.image} alt={movie.title} />
                 <div className="poster-gradient"></div>
                 <div className="cinema-info">
                     <MapPin size={18} />
