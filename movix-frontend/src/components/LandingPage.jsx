@@ -11,17 +11,18 @@ const LandingPage = () => {
 
     const [activeNav, setActiveNav] = useState('Movies');
     const [searchOpen, setSearchOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
     const [userMenuOpen, setUserMenuOpen] = useState(false);
 
     const [selectedMovie, setSelectedMovie] = useState(null);
-
     const [featuredMovie, setFeaturedMovie] = useState(null);
+
     const [continueWatching, setContinueWatching] = useState([]);
     const [nowShowing, setNowShowing] = useState([]);
     const [popular, setPopular] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const navItems = ['Movies', 'TV Shows', 'Events', 'Concerts'];
+    const navItems = ['Movies', 'Cinemas', 'Events', 'Offers'];
 
     const formatDuration = (minutes) => {
         if (!minutes) return '0m';
@@ -30,33 +31,25 @@ const LandingPage = () => {
         return `${h}h ${m}m`;
     };
 
-    const handleMovieClick = (movie) => {
-        setSelectedMovie(movie);
+    const getYearFromDate = (dateString) => {
+        if (!dateString) return new Date().getFullYear();
+        return new Date(dateString).getFullYear();
     };
 
-    const handleCloseModal = () => {
-        setSelectedMovie(null);
-    };
-
-    const handleBookTicket = (movie) => {
-        navigate('/seat-selection', { state: { movie } });
-    };
-
-    const handleNavigateSettings = () => {
-        navigate('/settings');
-    };
+    const handleMovieClick = (movie) => setSelectedMovie(movie);
+    const handleCloseModal = () => setSelectedMovie(null);
+    const handleBookTicket = (movie) => navigate('/seat-selection', { state: { movie } });
+    const handleNavigateSettings = () => navigate('/settings');
+    const handleSearchChange = (e) => setSearchQuery(e.target.value);
 
     useEffect(() => {
         const fetchMovies = async () => {
             try {
-                const { data, error } = await supabase
-                    .from('movie')
-                    .select('*');
-
+                const { data, error } = await supabase.from('movie').select('*');
                 if (error) throw error;
 
                 const formattedData = data.map((m) => ({
-                    id: m.moviename,
+                    id: m.id || m.moviename,
                     title: m.moviename,
                     description: m.description,
                     image: m.poster,
@@ -64,32 +57,37 @@ const LandingPage = () => {
                     rating: m.rating,
                     duration: formatDuration(m.duration),
                     genre: m.genre,
-                    year: '2025',
-                    progress: Math.floor(Math.random() * 90) + 10,
+                    year: getYearFromDate(m.release_date),
+                    progress: Math.floor(Math.random() * 90) + 10, // Mock progress for UI
                     is_featured: m.is_featured,
                     category: m.category
                 }));
 
-                if (formattedData.length > 0) {
-                    const hero = formattedData.find(m => m.is_featured === true);
-                    setFeaturedMovie(hero || formattedData[0]);
+                const hero = formattedData.find(m => m.is_featured === true);
+                setFeaturedMovie(hero || formattedData[0]);
 
-                    setContinueWatching(formattedData.filter(m => m.category === 'continue_watching'));
-                    setPopular(formattedData.filter(m => m.category === 'popular'));
-                    setNowShowing(formattedData.filter(m => m.category === 'now_showing'));
+                let filteredData = formattedData;
+                if (searchQuery) {
+                    filteredData = formattedData.filter(m =>
+                        m.title.toLowerCase().includes(searchQuery.toLowerCase())
+                    );
                 }
+
+                setContinueWatching(filteredData.filter(m => m.category === 'continue_watching'));
+                setNowShowing(filteredData.filter(m => m.category === 'now_showing'));
+                setPopular(filteredData.filter(m => m.category === 'popular'));
 
                 setLoading(false);
             } catch (error) {
-                console.error(error);
+                console.error("Error fetching movies:", error);
                 setLoading(false);
             }
         };
 
         fetchMovies();
-    }, []);
+    }, [searchQuery]);
 
-    if (loading) return <div className="app-container" style={{color:'white', padding:'20px'}}>Loading...</div>;
+    if (loading) return <div style={{height:'100vh', background:'#000', color:'white', display:'flex', alignItems:'center', justifyContent:'center'}}>Loading...</div>;
 
     return (
         <LandingPageView
@@ -100,6 +98,8 @@ const LandingPage = () => {
             setActiveNav={setActiveNav}
             searchOpen={searchOpen}
             setSearchOpen={setSearchOpen}
+            searchQuery={searchQuery}
+            onSearchChange={handleSearchChange}
             userMenuOpen={userMenuOpen}
             setUserMenuOpen={setUserMenuOpen}
             featuredMovie={featuredMovie}
