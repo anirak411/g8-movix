@@ -16,8 +16,7 @@ public class Ticket {
 
     /**
      * CRITICAL FIX: The @JoinColumn ensures Hibernate maps the 'user'
-     * field to the 'user_id' column in the database, resolving the
-     * "column 'userid' does not exist" error.
+     * field to the 'user_id' column in the database.
      */
     @ManyToOne
     @JoinColumn(name = "user_id")

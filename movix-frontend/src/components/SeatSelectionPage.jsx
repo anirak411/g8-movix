@@ -1,13 +1,135 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { MapPin, ChevronLeft } from 'lucide-react';
+import { MapPin, ChevronLeft, CreditCard, X } from 'lucide-react';
 import '../css/seatselection.css';
 import { useAuth } from '../context/AuthContext';
 
 const PRICE_PER_SEAT = 200;
 const BASE_URL = 'http://localhost:8081/api/v1';
 const FALLBACK_IMAGE_URL = '/images/default-poster.png';
+
+// =========================================================================
+// 1. PAYMENT MODAL COMPONENT (with Auto-Formatting)
+// =========================================================================
+
+const PaymentModal = ({ onClose, onConfirm, totalPrice, movieTitle }) => {
+    const [cardDetails, setCardDetails] = useState({ number: '', expiry: '', cvc: '' });
+    const [isProcessing, setIsProcessing] = useState(false);
+
+    // Validation: Card number (16 digits + 3 spaces = 19 chars), Expiry (MM/YY = 5 chars), CVC (min 3 chars)
+    const isFormValid =
+        cardDetails.number.length === 19 &&
+        cardDetails.expiry.length === 5 &&
+        cardDetails.cvc.length >= 3;
+
+    // FIX: Auto-format card number with spaces (XXXX XXXX XXXX XXXX)
+    const handleCardNumberChange = (e) => {
+        let value = e.target.value.replace(/\s/g, ''); // Remove existing spaces
+        value = value.replace(/(\d{4})/g, '$1 ').trim(); // Add space after every 4 digits
+        if (value.length <= 19) {
+            setCardDetails({ ...cardDetails, number: value });
+        }
+    };
+
+    // FIX: Auto-format expiry date (MM/YY) and insert '/'
+    const handleExpiryChange = (e) => {
+        let value = e.target.value.replace(/\//g, ''); // Remove existing slashes
+
+        // Ensure month is 2 digits before adding slash
+        if (value.length > 2) {
+            value = value.substring(0, 2) + '/' + value.substring(2, 4);
+        }
+
+        if (value.length <= 5) { // Limit length to 5 (MM/YY)
+            setCardDetails({ ...cardDetails, expiry: value });
+        }
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (isFormValid) {
+            setIsProcessing(true);
+            // Simulate payment processing delay
+            setTimeout(() => {
+                onConfirm();
+            }, 1000);
+        } else {
+            alert("Please check your payment details.");
+        }
+    };
+
+    return (
+        <div className="payment-modal-overlay" onClick={onClose}>
+            <div className="payment-modal-content" onClick={e => e.stopPropagation()}>
+                <div className="modal-header">
+                    <h2>Complete Booking: {movieTitle}</h2>
+                    <button onClick={onClose} className="modal-close-btn"><X size={20} /></button>
+                </div>
+                <div className="modal-body">
+                    <p className="total-due">
+                        Total Amount Due: <span style={{fontWeight: 'bold', color: 'var(--accent)'}}>₱{totalPrice.toFixed(2)}</span>
+                    </p>
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label><CreditCard size={14} style={{verticalAlign: 'middle', marginRight: '5px'}}/> Card Number</label>
+                            <input
+                                type="text"
+                                className="form-input"
+                                placeholder="0000 0000 0000 0000"
+                                value={cardDetails.number}
+                                onChange={handleCardNumberChange}
+                                inputMode="numeric"
+                                disabled={isProcessing}
+                                required
+                            />
+                        </div>
+                        <div className="form-row">
+                            <div className="form-group" style={{flex: 1}}>
+                                <label>Expiry (MM/YY)</label>
+                                <input
+                                    className="form-input"
+                                    placeholder="MM/YY"
+                                    value={cardDetails.expiry}
+                                    onChange={handleExpiryChange}
+                                    inputMode="numeric"
+                                    maxLength={5}
+                                    disabled={isProcessing}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group" style={{flex: 1}}>
+                                <label>CVC</label>
+                                <input
+                                    className="form-input"
+                                    placeholder="123"
+                                    type="password"
+                                    value={cardDetails.cvc}
+                                    onChange={e => setCardDetails({...cardDetails, cvc: e.target.value})}
+                                    inputMode="numeric"
+                                    maxLength={4}
+                                    disabled={isProcessing}
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        {/* Billing Address removed as requested */}
+
+                        <button type="submit" className="primary-modal-btn" disabled={!isFormValid || isProcessing}>
+                            {isProcessing ? 'Processing Payment...' : `Pay ₱${totalPrice.toFixed(2)} & Confirm Booking`}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+// =========================================================================
+// 2. SEAT SELECTION PAGE COMPONENT (Ref-Based Stabilization)
+// =========================================================================
 
 const SeatSelectionPage = () => {
     const location = useLocation();
@@ -53,9 +175,17 @@ const SeatSelectionPage = () => {
     const [selectedSeats, setSelectedSeats] = useState([]);
     const [seats, setSeats] = useState(Array(SEAT_ROWS).fill(0).map(() => Array(SEAT_COLS).fill(0)));
     const [isLoadingSeats, setIsLoadingSeats] = useState(false);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
-    // FIX APPLIED HERE: Removed 'seats' and 'selectedSeats' from the dependency array
-    // to prevent the infinite loop on state update, only relying on input changes.
+    // FIX: Ref for stability. Reads the LATEST value of selectedSeats without causing useEffect loops.
+    const selectedSeatsRef = useRef(selectedSeats);
+
+    // FIX: Keep the ref updated on every render
+    useEffect(() => {
+        selectedSeatsRef.current = selectedSeats;
+    });
+
+    // FINAL FIX: Stabilized fetch function
     const fetchBookedSeats = useCallback(async () => {
         setIsLoadingSeats(true);
         const currentDateStr = dates[selectedDateIndex]?.fullDate;
@@ -77,15 +207,13 @@ const SeatSelectionPage = () => {
             const bookedSeats = response.data;
             let newlySelectedSeats = [];
 
-            // IMPORTANT: Use the current state values inside the function,
-            // but rely on functional updates (like setState) if needed for immediate consistency.
-            // When setting newSeats, we check against the current selectedSeats in scope.
+            const currentSelectedSeats = selectedSeatsRef.current;
 
             setSeats(prevSeats => {
                 const newSeats = prevSeats.map((row, rowIndex) =>
                     row.map((seatStatus, seatIndex) => {
                         const seatId = `${String.fromCharCode(65 + rowIndex)}${seatIndex + 1}`;
-                        const isSelected = selectedSeats.includes(seatId);
+                        const isSelected = currentSelectedSeats.includes(seatId);
 
                         if (bookedSeats.includes(seatId)) {
                             return 1; // Mark as booked (1)
@@ -102,7 +230,6 @@ const SeatSelectionPage = () => {
                 return newSeats;
             });
 
-            // Sync state: Keep only seats that are still available
             setSelectedSeats(newlySelectedSeats);
 
         } catch (error) {
@@ -112,11 +239,10 @@ const SeatSelectionPage = () => {
         } finally {
             setIsLoadingSeats(false);
         }
-    }, [selectedDateIndex, selectedTime, movie.title, dates]); // Dependency array simplified
-
+    }, [selectedDateIndex, selectedTime, movie.title, dates]); // Stable dependencies array
 
     useEffect(() => {
-        // This runs only when fetchBookedSeats is recreated (i.e., when date/time/movie changes)
+        // Runs on mount and when showtime/date/movie changes
         fetchBookedSeats();
     }, [fetchBookedSeats]);
 
@@ -148,7 +274,8 @@ const SeatSelectionPage = () => {
         }
     };
 
-    const handleSelect = async () => {
+    // --- Initiates the Payment Modal ---
+    const handleOpenPayment = () => {
         if (selectedSeats.length === 0) {
             alert('Please select at least one seat to proceed.');
             return;
@@ -159,6 +286,13 @@ const SeatSelectionPage = () => {
             navigate('/login');
             return;
         }
+
+        setIsPaymentModalOpen(true);
+    };
+
+    // --- Finalizes Booking after payment confirmation ---
+    const handleFinalizeBooking = async () => {
+        setIsPaymentModalOpen(false);
 
         const payload = {
             moviename: movie.title,
@@ -186,7 +320,7 @@ const SeatSelectionPage = () => {
 
             if (err.response) {
                 const status = err.response.status;
-                const message = err.response.data || 'An unknown error occurred.';
+                const message = err.response.data || 'An unexpected error occurred.';
 
                 if (status === 409) {
                     alert('Booking Conflict: ' + message);
@@ -201,7 +335,10 @@ const SeatSelectionPage = () => {
                 alert('Could not connect to the booking service. Check your network or server status.');
             }
 
-            fetchBookedSeats();
+            // Refetch data after failure to sync with the database
+            setTimeout(() => {
+                fetchBookedSeats();
+            }, 100);
         }
     };
 
@@ -315,12 +452,22 @@ const SeatSelectionPage = () => {
                     </div>
                 </div>
 
-                <button className="select-btn" onClick={handleSelect} disabled={selectedSeats.length === 0 || isLoadingSeats}>
+                <button className="select-btn" onClick={handleOpenPayment} disabled={selectedSeats.length === 0 || isLoadingSeats}>
                     {selectedSeats.length > 0
                         ? `SELECT (${selectedSeats.length}) | Total: ₱${totalPrice.toFixed(2)}`
                         : 'SELECT SEATS'}
                 </button>
             </div>
+
+            {/* --- Render the Payment Modal --- */}
+            {isPaymentModalOpen && (
+                <PaymentModal
+                    onClose={() => setIsPaymentModalOpen(false)}
+                    onConfirm={handleFinalizeBooking}
+                    totalPrice={totalPrice}
+                    movieTitle={movie.title}
+                />
+            )}
         </div>
     );
 };
