@@ -28,26 +28,14 @@ public class User {
     @Column(nullable = false)
     private Boolean enabled = true;
 
-    // ***************************************************************
-    // CRITICAL FIX: Add the isAdmin field and map it to the DB column.
-    // ***************************************************************
-    @Column(name = "is_admin", nullable = false) // Maps to the 'is_admin' column in your DB
-    private Boolean isAdmin = false;             // Default value should be false
+    @Column(name = "is_admin", nullable = false)
+    private Boolean isAdmin = false;
 
-    // Updated Constructor (to ensure isAdmin is included in full constructor)
-    public User(Long id, String email, String password, Boolean enabled, Boolean isAdmin) {
-        this.id = id;
-        this.email = email;
-        this.password = password;
-        this.enabled = enabled;
-        this.isAdmin = isAdmin;
-    }
-    
-    // Existing simplified constructor (isAdmin defaults to false)
+    // Keep only this custom constructor
     public User(String email, String password) {
         this.email = email;
         this.password = password;
         this.enabled = true;
-        this.isAdmin = false; // Explicitly set default for new users
+        this.isAdmin = false;
     }
 }

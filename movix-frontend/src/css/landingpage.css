@@ -700,3 +700,259 @@ html.light-mode .hero-title {
     }
 }
 
+/*SEARCH BAR STYLES*/
+
+.search-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.search-icon {
+  cursor: pointer;
+  color: var(--text-main);
+  transition: all 0.3s ease;
+  padding: 0.5rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.search-icon:hover {
+  background: var(--bg-hover);
+  transform: scale(1.1);
+}
+
+.nav-search-input {
+  width: 0;
+  opacity: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-left: 0;
+}
+
+.search-wrapper.open {
+  gap: 0.5rem;
+}
+
+.search-wrapper.open .nav-search-input {
+  width: 300px;
+  opacity: 1;
+  padding: 0.6rem 2.5rem 0.6rem 1rem;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
+  border-radius: 25px;
+}
+
+.search-wrapper.open .nav-search-input:focus {
+  background: var(--bg-card);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.1);
+}
+
+.nav-search-input::placeholder {
+  color: var(--text-secondary);
+}
+
+/* Clear Search Icon (X button inside input) */
+.clear-search-icon {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.clear-search-icon:hover {
+  background: var(--bg-hover);
+  color: var(--text-main);
+  transform: scale(1.1);
+}
+
+/* Search Results Banner - NOW INSIDE MAIN CONTENT */
+.search-results-banner {
+  background: var(--bg-card);
+  padding: 1rem 0;
+  margin: 0 0 2rem 0;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+}
+
+.search-results-banner p {
+  color: var(--text-secondary);
+  margin: 200;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.search-results-banner strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.clear-filter-btn {
+  background: transparent;
+  border: 2px solid var(--border-color);
+  color: var(--text-main);
+  padding: 0.5rem 2rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.clear-filter-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+  transform: scale(1.05);
+}
+
+/* No Results State */
+.no-results {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-secondary);
+}
+
+.no-results h3 {
+  font-size: 1.8rem;
+  color: var(--text-main);
+  margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.no-results p {
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+  color: var(--text-secondary);
+}
+
+.no-results .btn-primary {
+  display: inline-flex;
+}
+
+/* Card Rating Badge (for Now Showing section) */
+.card-image-wrapper {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  aspect-ratio: 2/3;
+}
+
+.card-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.movie-card:hover .card-image-wrapper img {
+  transform: scale(1.05);
+}
+
+.card-rating-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--accent);
+  font-weight: 600;
+  border: 1px solid rgba(250, 204, 21, 0.3);
+}
+
+/* Genre Tag Styling */
+.genre-tag {
+  background: rgba(250, 204, 21, 0.2);
+  color: var(--accent);
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid rgba(250, 204, 21, 0.3);
+}
+
+/* Mobile Responsiveness for Search */
+@media (max-width: 768px) {
+  .search-wrapper.open .nav-search-input {
+    width: 200px;
+  }
+
+  .search-results-banner {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .clear-filter-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* New: Adjust main content padding when the Search Results Banner is visible */
+.main-content.search-active {
+    /* Adjust based on top-nav height (80px) + search-results-banner height (~60px) + margin/padding.
+       A safe value to clear both fixed top-nav and the banner below it. */
+    padding-top: 140px; 
+}
+
+/* New: For mobile */
+@media (max-width: 768px) {
+    /* ... existing media queries ... */
+
+    .main-content.search-active {
+        /* Adjusted for smaller screen padding */
+        padding-top: 150px; 
+    }
+}
+
+/* --- Styles for CategoryListingPage (Movie Grid) --- */
+
+.movie-grid {
+    /* Use CSS Grid to arrange movies */
+    display: grid; 
+    /* Create columns that automatically fill the space, minimum size 200px */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
+    gap: 2rem; /* Space between the cards */
+    padding: 0 3rem; /* Match the side padding of the main landing page */
+}
+
+/* Responsive adjustment for small screens */
+@media (max-width: 768px) {
+    .movie-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        padding: 0 1.5rem; 
+    }
+}

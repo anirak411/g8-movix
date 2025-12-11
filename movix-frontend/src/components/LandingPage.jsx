@@ -11,7 +11,7 @@ const LandingPage = () => {
     const userEmail = localStorage.getItem('userEmail') || 'Guest User';
 
     const [activeNav, setActiveNav] = useState('Movies');
-    const [searchOpen, setSearchOpen] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);    
     const [searchQuery, setSearchQuery] = useState('');
     const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -23,7 +23,7 @@ const LandingPage = () => {
     const [popular, setPopular] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const navItems = ['Movies', 'Cinemas', 'Events', 'Offers'];
+    const navItems = ['Movies'];
 
     const formatDuration = (minutes) => {
         if (!minutes) return '0m';
@@ -45,51 +45,68 @@ const LandingPage = () => {
     const handleNavigateSettings = () => navigate('/settings');
     const handleSearchChange = (e) => setSearchQuery(e.target.value);
 
-    useEffect(() => {
-        const fetchMovies = async () => {
-            try {
-                // Fetch movies from the 'movie' table
-                const { data, error } = await supabase.from('movie').select('*');
-                if (error) throw error;
+    // NEW FUNCTION: Handles "See All" button clicks
+    const handleSeeAllClick = (category) => {
+        // Navigates to a new route, passing the category name as state/URL parameter.
+        // You will need to create a new component and route for '/category-list/:category'
+        navigate(`/category-list/${category}`);
+    };
 
-                const formattedData = data.map((m) => ({
-                    id: m.id || m.moviename,
-                    title: m.moviename,
-                    description: m.description,
-                    image: m.poster,
-                    portraitImage: m.poster_portrait || m.poster,
-                    rating: m.rating,
-                    duration: formatDuration(m.duration),
-                    genre: m.genre,
-                    year: getYearFromDate(m.release_date),
-                    progress: Math.floor(Math.random() * 90) + 10, // Mock progress
-                    is_featured: m.is_featured,
-                    category: m.category
-                }));
+useEffect(() => {
+    const fetchMovies = async () => {
+        try {
+            // Fetch movies from the 'movie' table
+            const { data, error } = await supabase.from('movie').select('*');
+            if (error) throw error;
 
-                const hero = formattedData.find(m => m.is_featured === true);
-                setFeaturedMovie(hero || formattedData[0]);
+            const formattedData = data.map((m) => ({
+                id: m.id || m.moviename,
+                title: m.moviename,
+                description: m.description,
+                image: m.poster,
+                portraitImage: m.poster_portrait || m.poster,
+                rating: m.rating,
+                duration: formatDuration(m.duration),
+                genre: m.genre,
+                year: getYearFromDate(m.release_date),
+                progress: Math.floor(Math.random() * 90) + 10, // Mock progress
+                is_featured: m.is_featured,
+                category: m.category
+            }));
 
-                let filteredData = formattedData;
-                if (searchQuery) {
-                    filteredData = formattedData.filter(m =>
-                        m.title.toLowerCase().includes(searchQuery.toLowerCase())
-                    );
-                }
+            const hero = formattedData.find(m => m.is_featured === true);
+            setFeaturedMovie(hero || formattedData[0]);
 
-                setContinueWatching(filteredData.filter(m => m.category === 'continue_watching'));
-                setNowShowing(filteredData.filter(m => m.category === 'now_showing'));
-                setPopular(filteredData.filter(m => m.category === 'popular'));
-
-                setLoading(false);
-            } catch (error) {
-                console.error("Error fetching movies:", error);
-                setLoading(false);
+            // ENHANCED SEARCH LOGIC - searches title, genre, AND description
+            let filteredData = formattedData;
+            if (searchQuery) {
+                const query = searchQuery.toLowerCase().trim();
+                filteredData = formattedData.filter(m => {
+                    const title = (m.title || '').toLowerCase();
+                    const genre = (m.genre || '').toLowerCase();
+                    const description = (m.description || '').toLowerCase();
+                    
+                    // Returns true if query matches title, genre, OR description
+                    return title.includes(query) || 
+                           genre.includes(query) || 
+                           description.includes(query);
+                });
             }
-        };
 
-        fetchMovies();
-    }, [searchQuery]);
+            // Filter by category
+            setContinueWatching(filteredData.filter(m => m.category === 'continue_watching'));
+            setNowShowing(filteredData.filter(m => m.category === 'now_showing'));
+            setPopular(filteredData.filter(m => m.category === 'popular'));
+
+            setLoading(false);
+        } catch (error) {
+            console.error("Error fetching movies:", error);
+            setLoading(false);
+        }
+    };
+
+    fetchMovies();
+}, [searchQuery]); // Re-run when searchQuery changes
 
     if (loading) return <div style={{height:'100vh', background:'#000', color:'white', display:'flex', alignItems:'center', justifyContent:'center'}}>Loading...</div>;
 
@@ -116,6 +133,7 @@ const LandingPage = () => {
             selectedMovie={selectedMovie}
             onCloseModal={handleCloseModal}
             onBookTicket={handleBookTicket}
+            onSeeAllClick={handleSeeAllClick}
         />
     );
 };
