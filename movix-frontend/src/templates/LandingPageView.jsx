@@ -6,7 +6,6 @@ import '../css/landingpage.css';
 const LandingPageView = ({
     userEmail,
     onLogout,
-    // NEW PROP: Add isAdmin
     isAdmin,
     navItems = [],
     activeNav,
@@ -25,6 +24,7 @@ const LandingPageView = ({
     selectedMovie,
     onCloseModal,
     onBookTicket
+    
 }) => {
 
     const navigate = useNavigate();
@@ -40,11 +40,18 @@ const LandingPageView = ({
         navigate('/settings');
     };
     
-    // NEW: Handler for Admin Dashboard navigation
     const handleAdminDashboardClick = () => {
         setUserMenuOpen(false);
-        navigate('/admin-dashboard'); // Matches the new route in App.jsx
+        navigate('/admin-dashboard');
     };
+
+    const clearSearch = () => {
+        onSearchChange({ target: { value: '' } });
+        setSearchOpen(false);
+    };
+
+    // Check if there are any results
+    const hasResults = continueWatching.length > 0 || nowShowing.length > 0 || popular.length > 0;
 
     // Shared shadow style for maximum visibility without backgrounds
     const heavyShadow = { textShadow: '2px 2px 8px rgba(0, 0, 0, 1), 0 0 2px rgba(0,0,0,0.5)' };
@@ -69,21 +76,34 @@ const LandingPageView = ({
                 </div>
                 <div className="nav-right">
                     <div className={`search-wrapper ${searchOpen ? 'open' : ''}`}>
-                        <Search size={20} className="search-icon" onClick={() => setSearchOpen(!searchOpen)}/>
+                        <Search 
+                            size={20} 
+                            className="search-icon" 
+                            onClick={() => setSearchOpen(!searchOpen)}
+                        />
                         {searchOpen && (
-                            <input
-                                type="text"
-                                placeholder="Search movies..."
-                                className="nav-search-input"
-                                value={searchQuery}
-                                onChange={onSearchChange}
-                                autoFocus
-                            />
+                            <>
+                                <input
+                                    type="text"
+                                    placeholder="Search movies..."
+                                    className="nav-search-input"
+                                    value={searchQuery}
+                                    onChange={onSearchChange}
+                                    autoFocus
+                                />
+                                {searchQuery && (
+                                    <button 
+                                        className="clear-search-icon"
+                                        onClick={clearSearch}
+                                        aria-label="Clear search"
+                                    >
+                                        <X size={16} />
+                                    </button>
+                                )}
+                            </>
                         )}
                     </div>
-                    <button className="icon-btn">
-                        <Bell size={20} />
-                    </button>
+                    
                     <div className="user-menu">
                         <div className="user-avatar" onClick={() => setUserMenuOpen(!userMenuOpen)}>
                             {userEmail ? userEmail.charAt(0).toUpperCase() : 'U'}
@@ -94,7 +114,6 @@ const LandingPageView = ({
                                     <span className="dropdown-email">{userEmail}</span>
                                 </div>
 
-                                {/* --- NEW: Admin Dashboard Button (Conditional) --- */}
                                 {isAdmin && (
                                     <button className="dropdown-item admin-btn" onClick={handleAdminDashboardClick}>
                                         <Settings size={16} /> Admin Dashboard
@@ -113,9 +132,21 @@ const LandingPageView = ({
                 </div>
             </header>
 
-            <main className="main-content">
-                {/* --- Hero Section --- */}
-                {featuredMovie && (
+            {/* Search Results Banner - MOVED INSIDE MAIN CONTENT */}
+            <main className={`main-content ${searchQuery ? 'search-active' : ''}`}>
+                {searchQuery && (
+                    <div className="search-results-banner">
+                        <p>
+                            Searching for: <strong>"{searchQuery}"</strong>
+                        </p>
+                        <button onClick={clearSearch} className="clear-filter-btn">
+                            <X size={14} /> Clear Search
+                        </button>
+                    </div>
+                )}
+
+                {/* --- Hero Section (hide when searching) --- */}
+                {featuredMovie && !searchQuery && (
                     <section className="hero-section" style={{
                         backgroundImage: `url(${featuredMovie.image})`,
                         height: '85vh',
@@ -132,7 +163,7 @@ const LandingPageView = ({
                             color: textColor,
                             zIndex: 2,
                             paddingLeft: '60px',
-                            maxWidth: '800px', // Wider text area
+                            maxWidth: '800px',
                             display: 'flex',
                             flexDirection: 'column',
                             gap: '10px'
@@ -154,7 +185,6 @@ const LandingPageView = ({
                                 <span className="genre-tag" style={{ boxShadow: '0 2px 5px rgba(0,0,0,0.5)' }}>{featuredMovie.genre}</span>
                             </div>
 
-                            {/* --- DESCRIPTION (Card Removed, Heavy Shadow Added) --- */}
                             <p className="hero-description" style={{
                                 fontSize: '1.2rem',
                                 lineHeight: '1.6',
@@ -162,7 +192,7 @@ const LandingPageView = ({
                                 color: '#fff',
                                 maxWidth: '700px',
                                 fontWeight: '500',
-                                ...heavyShadow // Applies strong shadow for visibility
+                                ...heavyShadow
                             }}>
                                 {featuredMovie.description}
                             </p>
@@ -181,9 +211,20 @@ const LandingPageView = ({
 
                 <div className="content-wrapper" style={{ maxWidth: '1400px', margin: '0 auto', padding: '0 40px', position: 'relative', zIndex: 10 }}>
 
+                    {/* --- No Results Message --- */}
+                    {searchQuery && !hasResults && (
+                        <div className="no-results">
+                            <h3>No movies found for "{searchQuery}"</h3>
+                            <p>Try searching with different keywords or browse our collection</p>
+                            <button className="btn-primary" onClick={clearSearch}>
+                                <X size={16} /> Clear Search
+                            </button>
+                        </div>
+                    )}
+
                     {/* --- Continue Watching --- */}
                     {continueWatching.length > 0 && (
-                        <section className="movie-section" style={{ marginTop: '40px' }}>
+                        <section className="movie-section" style={{ marginTop: searchQuery ? '0px' : '40px' }}>
                             <div className="section-header">
                                 <h3>Continue Watching</h3>
                                 <button className="see-all">See all →</button>
@@ -193,13 +234,8 @@ const LandingPageView = ({
                                     <div key={movie.id} className="continue-card" onClick={() => onMovieClick(movie)}>
                                         <div className="continue-image">
                                             <img src={movie.image} alt={movie.title} />
-                                            <div className="play-overlay">
-                                                <Play size={32} fill="white" />
-                                            </div>
                                         </div>
-                                        <div className="progress-bar">
-                                            <div className="progress-fill" style={{ width: `${movie.progress}%` }}></div>
-                                        </div>
+                                        
                                         <div className="continue-info">
                                             <p className="continue-title">{movie.title}</p>
                                             <span className="continue-duration">{movie.duration}</span>
@@ -211,57 +247,61 @@ const LandingPageView = ({
                     )}
 
                     {/* --- Now Showing --- */}
-                    <section className="movie-section">
-                        <div className="section-header">
-                            <h3>Now Showing</h3>
-                            <button className="see-all">See all →</button>
-                        </div>
-                        <div className="movie-row">
-                            {nowShowing.map((movie) => (
-                                <div key={movie.id} className="movie-card" onClick={() => onMovieClick(movie)}>
-                                    <div className="card-image-wrapper">
-                                        <img
-                                            src={movie.portraitImage}
-                                            alt={movie.title}
-                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                        />
-                                        <div className="card-rating-badge">
-                                            <Star size={10} fill="#fbbf24" stroke="none" /> {movie.rating}
+                    {nowShowing.length > 0 && (
+                        <section className="movie-section">
+                            <div className="section-header">
+                                <h3>Now Showing</h3>
+                                <button className="see-all">See all →</button>
+                            </div>
+                            <div className="movie-row">
+                                {nowShowing.map((movie) => (
+                                    <div key={movie.id} className="movie-card" onClick={() => onMovieClick(movie)}>
+                                        <div className="card-image-wrapper">
+                                            <img
+                                                src={movie.portraitImage}
+                                                alt={movie.title}
+                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                            />
+                                            <div className="card-rating-badge">
+                                                <Star size={10} fill="#fbbf24" stroke="none" /> {movie.rating}
+                                            </div>
+                                        </div>
+                                        <div className="card-info">
+                                            <p className="card-title">{movie.title}</p>
+                                            <span className="card-genre">{movie.genre}</span>
                                         </div>
                                     </div>
-                                    <div className="card-info">
-                                        <p className="card-title">{movie.title}</p>
-                                        <span className="card-genre">{movie.genre}</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
+                                ))}
+                            </div>
+                        </section>
+                    )}
 
                     {/* --- Popular --- */}
-                    <section className="movie-section">
-                        <div className="section-header">
-                            <h3>Popular This Week</h3>
-                            <button className="see-all">See all →</button>
-                        </div>
-                        <div className="movie-row">
-                            {popular.map((movie) => (
-                                <div key={movie.id} className="movie-card" onClick={() => onMovieClick(movie)}>
-                                    <div className="card-image-wrapper">
-                                        <img src={movie.portraitImage} alt={movie.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    {popular.length > 0 && (
+                        <section className="movie-section">
+                            <div className="section-header">
+                                <h3>Popular This Week</h3>
+                                <button className="see-all">See all →</button>
+                            </div>
+                            <div className="movie-row">
+                                {popular.map((movie) => (
+                                    <div key={movie.id} className="movie-card" onClick={() => onMovieClick(movie)}>
+                                        <div className="card-image-wrapper">
+                                            <img src={movie.portraitImage} alt={movie.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        </div>
+                                        <div className="card-info">
+                                            <p className="card-title">{movie.title}</p>
+                                            <span className="card-genre">{movie.genre}</span>
+                                        </div>
                                     </div>
-                                    <div className="card-info">
-                                        <p className="card-title">{movie.title}</p>
-                                        <span className="card-genre">{movie.genre}</span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
+                                ))}
+                            </div>
+                        </section>
+                    )}
                 </div>
             </main>
 
-            {/* --- Modal (unchanged) --- */}
+            {/* --- Modal --- */}
             {selectedMovie && (
                 <div
                     className="modal-overlay"

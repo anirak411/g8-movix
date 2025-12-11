@@ -1,203 +1,265 @@
-/* src/css/admin.css */
-
+/* --- Global Admin Container --- */
 .admin-container {
-    padding: 20px;
-    background-color: #1a1a1a;
     min-height: 100vh;
-    color: #f1f1f1;
-    font-family: 'Arial', sans-serif;
+    background: var(--bg-page); /* Use dark page background */
+    color: var(--text-main); /* Use white text color */
+    padding: 2rem 3rem; /* Add outer space around the content */
+    font-family: 'Inter', sans-serif; /* Use the main website font */
+    max-width: 1600px; /* Limit dashboard width for better look */
+    margin: 0 auto;
 }
 
+/* --- Header & Actions (Aligned) --- */
 .admin-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    border-bottom: 2px solid #333;
-    padding-bottom: 15px;
+    justify-content: space-between; /* Space out the title and buttons */
+    align-items: center; /* Vertically align all header items */
+    margin-bottom: 3rem;
+    border-bottom: 2px solid var(--border-color); /* Add a subtle bottom line */
+    padding-bottom: 1rem;
 }
 
 .admin-header h2 {
     font-size: 2.5rem;
-    font-weight: 700;
-    color: #facc15;
+    font-weight: 800;
+    /* This makes the title look like the MOVIX logo */
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 1px;
+    margin: 0;
 }
 
-.admin-actions button {
-    margin-left: 15px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.2s, transform 0.1s;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
+.admin-actions {
+    display: flex;
+    gap: 1rem; /* Space between the two header buttons */
+    align-items: center; /* Important: ensures buttons align perfectly */
 }
 
+/* Primary Button: Add New Movie (styling for .btn-primary) */
 .btn-primary {
-    background-color: #facc15;
-    color: #1a1a1a;
+    background: var(--accent); /* Yellow background */
+    color: var(--accent-text); /* Black text on yellow button */
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px; /* Pill shape */
+    font-weight: 700;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
+
 .btn-primary:hover {
-    background-color: #f2c20e;
-    transform: translateY(-1px);
+    background: var(--accent-hover);
+    transform: scale(1.02);
+    box-shadow: 0 4px 15px rgba(250, 204, 21, 0.4); /* Add hover shadow */
 }
 
+/* Secondary Button: Back to Landing Page (styling for .btn-secondary) */
 .btn-secondary {
-    background-color: #333;
-    color: #fff;
-    border: 1px solid #444;
-}
-.btn-secondary:hover {
-    background-color: #444;
+    background: var(--bg-card); /* Darker background */
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
-/* --- Table Styling --- */
+.btn-secondary:hover {
+    background: var(--bg-hover); /* Light hover effect */
+    border-color: var(--accent); /* Yellow border on hover */
+}
+
+/* --- Table Styles --- */
 .movie-list-table {
     overflow-x: auto;
+    background: var(--bg-nav); /* Dark background for the whole table container */
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5); /* Lift the table visually */
 }
 
 .movie-list-table table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 10px; /* Space between rows */
+    border-collapse: collapse; /* Make table lines straight */
 }
 
-.movie-list-table th, .movie-list-table td {
-    padding: 15px;
+.movie-list-table thead th {
+    color: var(--accent); /* Yellow headers */
     text-align: left;
-}
-
-.movie-list-table th {
-    background-color: #333;
-    color: #facc15;
+    padding: 1rem 1rem 1rem 0.5rem;
+    font-size: 0.85rem;
     font-weight: 700;
     text-transform: uppercase;
-    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--accent); /* Thick yellow line below headers */
 }
 
-.movie-list-table tr {
-    background-color: #2a2a2a;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+.movie-list-table tbody tr {
+    transition: background 0.3s ease;
+    border-bottom: 1px solid var(--border-color); /* Separator line between rows */
 }
 
-.movie-list-table tr:hover {
-    background-color: #3a3a3a;
+.movie-list-table tbody tr:last-child {
+    border-bottom: none; /* Remove last separator line */
+}
+
+.movie-list-table tbody tr:hover {
+    background: #111111; /* Subtle row highlight on hover */
+}
+
+.movie-list-table tbody td {
+    padding: 1rem 1rem 1rem 0.5rem;
+    font-size: 0.95rem;
+    color: var(--text-main);
+    vertical-align: middle;
+}
+
+/* Table Column Widths (Simple way to set column sizes) */
+.movie-list-table thead th:nth-child(1), .movie-list-table tbody td:nth-child(1) { width: 25%; } /* Title column size */
+.movie-list-table thead th:nth-child(7), .movie-list-table tbody td:nth-child(7) { width: 10%; } /* Featured column size */
+.movie-list-table thead th:nth-child(8), .movie-list-table tbody td:nth-child(8) { width: 10%; text-align: right; } /* Actions column size */
+
+/* Highlighted Data */
+.movie-list-table td:nth-child(3) { /* Targets the Rating column */
+    font-weight: 700;
+    color: var(--accent); /* Make the rating score yellow */
+}
+
+/* --- Table Action Buttons --- */
+.movie-list-table td:nth-child(8) {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end; /* Push buttons to the right */
 }
 
 .icon-btn {
-    background: none;
-    border: none;
+    background: var(--bg-card);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%; /* Make buttons round */
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    padding: 5px;
-    margin: 0 5px;
-    border-radius: 50%;
-    transition: background-color 0.2s;
+    transition: all 0.2s ease;
 }
-
-.edit-btn { color: #facc15; }
-.delete-btn { color: #ef4444; }
 
 .icon-btn:hover {
-    background-color: rgba(250, 204, 21, 0.1);
-}
-.delete-btn:hover {
-    background-color: rgba(239, 68, 68, 0.1);
+    transform: scale(1.1); /* Pop out slightly on hover */
 }
 
-/* --- Modal Styling --- */
+.icon-btn.edit-btn:hover { background: #3b82f6; color: white; border-color: #3b82f6; } /* Blue for Edit */
+.icon-btn.delete-btn:hover { background: #ef4444; color: white; border-color: #ef4444; } /* Red for Delete */
+
+
+/* --- Modal Styles --- */
 .admin-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.85); /* Dark, transparent overlay */
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 2000;
+    z-index: 5000;
+    backdrop-filter: blur(5px); /* Blur the background */
+    animation: fadeIn 0.3s ease-out;
 }
 
 .admin-modal-content {
-    background-color: #1f2937;
-    padding: 30px;
+    background: var(--bg-card); /* Dark card background */
     border-radius: 12px;
     width: 90%;
     max-width: 600px;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8);
+    padding: 2rem;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.7);
+    border: 1px solid var(--border-color);
+    animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 1rem;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .admin-modal-content h3 {
-    margin-top: 0;
-    color: #facc15;
+    color: var(--accent); /* Yellow modal title */
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
 }
 
 .admin-modal-content label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #ccc;
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
 }
 
 .admin-modal-content input,
 .admin-modal-content textarea,
 .admin-modal-content select {
-    width: 100%;
-    padding: 10px;
+    background: var(--bg-nav); /* Dark input background */
+    border: 1px solid var(--border-color);
+    padding: 0.75rem;
     border-radius: 6px;
-    border: 1px solid #444;
-    background-color: #333;
-    color: #fff;
-    margin-top: 5px;
-    box-sizing: border-box;
+    color: var(--text-main);
+    margin-top: 0.25rem;
+    font-size: 1rem;
+    transition: border-color 0.2s;
 }
 
-.admin-modal-content textarea {
-    min-height: 100px;
-    resize: vertical;
+.admin-modal-content input:focus,
+.admin-modal-content textarea:focus,
+.admin-modal-content select:focus {
+    border-color: var(--accent); /* Yellow border when typing */
+    outline: none;
 }
 
 .checkbox-label {
-    display: flex;
+    flex-direction: row; /* Align checkbox and text horizontally */
     align-items: center;
-    gap: 10px;
-    font-weight: normal;
+    gap: 0.5rem;
 }
 
 .modal-actions {
     display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-    margin-top: 20px;
+    justify-content: flex-end; /* Push buttons to the right */
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.btn-save, .btn-cancel {
+    padding: 0.75rem 1.5rem;
+    border-radius: 25px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
 }
 
 .btn-save {
-    background-color: #10b981;
-    color: white;
-}
-.btn-save:hover {
-    background-color: #059669;
+    background: var(--accent); /* Primary yellow button */
+    color: var(--accent-text);
+    border: none;
 }
 
 .btn-cancel {
-    background-color: #ef4444;
+    background: #444; /* Dark gray for cancel */
     color: white;
-}
-.btn-cancel:hover {
-    background-color: #dc2626;
-}
-
-.error-message {
-    color: #ef4444;
-    background-color: #fee2e2;
-    padding: 10px;
-    border-radius: 6px;
-    text-align: center;
+    border: none;
 }
