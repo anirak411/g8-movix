@@ -15,6 +15,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException; // Added for exception handling
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,7 @@ public class AuthService {
                     .body(new MessageResponse("Error: Email is already in use!"));
         }
 
+        // NOTE: If you need default roles, add them here. Assuming 'isAdmin' is false by default.
         User user = new User(
             signUpRequest.getEmail(),
             encoder.encode(signUpRequest.getPassword())
@@ -62,10 +64,22 @@ public class AuthService {
 
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal(); 
         
+        // ***************************************************************
+        // CRITICAL FIX: 1. Fetch the User entity to get the isAdmin status.
+        // ***************************************************************
+        User user = userRepository.findByEmail(loginRequest.getEmail())
+            .orElseThrow(() -> new UsernameNotFoundException("User Not Found with email: " + loginRequest.getEmail()));
+            
+        Boolean isAdminStatus = user.getIsAdmin();
+        
+        // ***************************************************************
+        // CRITICAL FIX: 2. Call the JwtResponse constructor with all 4 arguments.
+        // ***************************************************************
         return ResponseEntity.ok(new JwtResponse(
                 jwt,
                 userDetails.getId(),
-                userDetails.getUsername()
+                userDetails.getUsername(),
+                isAdminStatus // <--- NEW: This is the 4th argument, fixing the error.
         ));
     }
 }

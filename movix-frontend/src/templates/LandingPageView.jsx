@@ -4,26 +4,28 @@ import { Search, Bell, Play, Star, Settings, LogOut, X, Ticket } from 'lucide-re
 import '../css/landingpage.css';
 
 const LandingPageView = ({
-                             userEmail,
-                             onLogout,
-                             navItems = [],
-                             activeNav,
-                             setActiveNav,
-                             searchOpen,
-                             setSearchOpen,
-                             searchQuery,
-                             onSearchChange,
-                             userMenuOpen,
-                             setUserMenuOpen,
-                             featuredMovie,
-                             continueWatching = [],
-                             nowShowing = [],
-                             popular = [],
-                             onMovieClick,
-                             selectedMovie,
-                             onCloseModal,
-                             onBookTicket
-                         }) => {
+    userEmail,
+    onLogout,
+    // NEW PROP: Add isAdmin
+    isAdmin,
+    navItems = [],
+    activeNav,
+    setActiveNav,
+    searchOpen,
+    setSearchOpen,
+    searchQuery,
+    onSearchChange,
+    userMenuOpen,
+    setUserMenuOpen,
+    featuredMovie,
+    continueWatching = [],
+    nowShowing = [],
+    popular = [],
+    onMovieClick,
+    selectedMovie,
+    onCloseModal,
+    onBookTicket
+}) => {
 
     const navigate = useNavigate();
     const [textColor, setTextColor] = useState('white');
@@ -36,6 +38,12 @@ const LandingPageView = ({
     const handleSettingsClick = () => {
         setUserMenuOpen(false);
         navigate('/settings');
+    };
+    
+    // NEW: Handler for Admin Dashboard navigation
+    const handleAdminDashboardClick = () => {
+        setUserMenuOpen(false);
+        navigate('/admin-dashboard'); // Matches the new route in App.jsx
     };
 
     // Shared shadow style for maximum visibility without backgrounds
@@ -85,6 +93,14 @@ const LandingPageView = ({
                                 <div className="dropdown-header">
                                     <span className="dropdown-email">{userEmail}</span>
                                 </div>
+
+                                {/* --- NEW: Admin Dashboard Button (Conditional) --- */}
+                                {isAdmin && (
+                                    <button className="dropdown-item admin-btn" onClick={handleAdminDashboardClick}>
+                                        <Settings size={16} /> Admin Dashboard
+                                    </button>
+                                )}
+                                
                                 <button className="dropdown-item" onClick={handleSettingsClick}>
                                     <Settings size={16} /> Settings
                                 </button>
@@ -245,7 +261,7 @@ const LandingPageView = ({
                 </div>
             </main>
 
-            {/* --- Modal --- */}
+            {/* --- Modal (unchanged) --- */}
             {selectedMovie && (
                 <div
                     className="modal-overlay"

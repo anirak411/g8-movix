@@ -1,0 +1,203 @@
+/* src/css/admin.css */
+
+.admin-container {
+    padding: 20px;
+    background-color: #1a1a1a;
+    min-height: 100vh;
+    color: #f1f1f1;
+    font-family: 'Arial', sans-serif;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #333;
+    padding-bottom: 15px;
+}
+
+.admin-header h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #facc15;
+}
+
+.admin-actions button {
+    margin-left: 15px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s, transform 0.1s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background-color: #facc15;
+    color: #1a1a1a;
+}
+.btn-primary:hover {
+    background-color: #f2c20e;
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #444;
+}
+.btn-secondary:hover {
+    background-color: #444;
+}
+
+/* --- Table Styling --- */
+.movie-list-table {
+    overflow-x: auto;
+}
+
+.movie-list-table table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px; /* Space between rows */
+}
+
+.movie-list-table th, .movie-list-table td {
+    padding: 15px;
+    text-align: left;
+}
+
+.movie-list-table th {
+    background-color: #333;
+    color: #facc15;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.movie-list-table tr {
+    background-color: #2a2a2a;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+}
+
+.movie-list-table tr:hover {
+    background-color: #3a3a3a;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    margin: 0 5px;
+    border-radius: 50%;
+    transition: background-color 0.2s;
+}
+
+.edit-btn { color: #facc15; }
+.delete-btn { color: #ef4444; }
+
+.icon-btn:hover {
+    background-color: rgba(250, 204, 21, 0.1);
+}
+.delete-btn:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* --- Modal Styling --- */
+.admin-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.admin-modal-content {
+    background-color: #1f2937;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.admin-modal-content h3 {
+    margin-top: 0;
+    color: #facc15;
+}
+
+.admin-modal-content label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #ccc;
+}
+
+.admin-modal-content input,
+.admin-modal-content textarea,
+.admin-modal-content select {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background-color: #333;
+    color: #fff;
+    margin-top: 5px;
+    box-sizing: border-box;
+}
+
+.admin-modal-content textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: normal;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.btn-save {
+    background-color: #10b981;
+    color: white;
+}
+.btn-save:hover {
+    background-color: #059669;
+}
+
+.btn-cancel {
+    background-color: #ef4444;
+    color: white;
+}
+.btn-cancel:hover {
+    background-color: #dc2626;
+}
+
+.error-message {
+    color: #ef4444;
+    background-color: #fee2e2;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+}

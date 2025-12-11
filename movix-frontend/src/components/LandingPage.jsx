@@ -5,7 +5,8 @@ import { supabase } from '../supabaseClient';
 import LandingPageView from '../templates/LandingPageView';
 
 const LandingPage = () => {
-    const { logout } = useAuth();
+    // 1. Get isAdmin from AuthContext
+    const { logout, isAdmin } = useAuth();
     const navigate = useNavigate();
     const userEmail = localStorage.getItem('userEmail') || 'Guest User';
 
@@ -33,7 +34,9 @@ const LandingPage = () => {
 
     const getYearFromDate = (dateString) => {
         if (!dateString) return new Date().getFullYear();
-        return new Date(dateString).getFullYear();
+        // Handle cases where release_date might be null or invalid
+        const date = new Date(dateString);
+        return isNaN(date) ? new Date().getFullYear() : date.getFullYear();
     };
 
     const handleMovieClick = (movie) => setSelectedMovie(movie);
@@ -45,6 +48,7 @@ const LandingPage = () => {
     useEffect(() => {
         const fetchMovies = async () => {
             try {
+                // Fetch movies from the 'movie' table
                 const { data, error } = await supabase.from('movie').select('*');
                 if (error) throw error;
 
@@ -58,7 +62,7 @@ const LandingPage = () => {
                     duration: formatDuration(m.duration),
                     genre: m.genre,
                     year: getYearFromDate(m.release_date),
-                    progress: Math.floor(Math.random() * 90) + 10, // Mock progress for UI
+                    progress: Math.floor(Math.random() * 90) + 10, // Mock progress
                     is_featured: m.is_featured,
                     category: m.category
                 }));
@@ -93,6 +97,7 @@ const LandingPage = () => {
         <LandingPageView
             userEmail={userEmail}
             onLogout={logout}
+            isAdmin={isAdmin} // <-- NEW: Pass isAdmin to the view component
             navItems={navItems}
             activeNav={activeNav}
             setActiveNav={setActiveNav}
