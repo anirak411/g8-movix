@@ -2,19 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../context/AuthContext';
-// FIX: Import the single, shared client instance instead of creating a new one
 import { supabase } from '../supabaseClient';
 
 import {
-    ArrowLeft, Moon, Sun, User, Bell, Shield, LogOut, ChevronRight,
+    ArrowLeft, Moon, Sun, User, LogOut, ChevronRight,
     CreditCard, Globe, Ticket, Calendar, X,
-    Lock, HelpCircle, Plus, Trash2, Check, ChevronDown
+    Lock, HelpCircle, Trash2
 } from 'lucide-react';
 import '../css/settings.css';
-
-// DELETED LINES: Removed the const supabaseUrl/supabaseKey/createClient(...) block
-
-// --- Reusable Components ---
 
 const BaseModal = ({ title, onClose, children, maxWidth = '500px' }) => (
     <div className="settings-modal-overlay" onClick={onClose}>
@@ -53,7 +48,9 @@ const ToggleSwitch = ({ active, onToggle }) => (
     </button>
 );
 
-// --- Modals ---
+// ====================================================================
+// --- Modals (Feature Implementation) ---
+// ====================================================================
 
 const AccountInfoModal = ({ onClose, user, onUpdate }) => {
     const [formData, setFormData] = useState({ name: user.name || '', city: user.city || '' });
@@ -75,7 +72,7 @@ const AccountInfoModal = ({ onClose, user, onUpdate }) => {
             </div>
             <div className="form-group">
                 <label className="form-label">Email Address</label>
-                <input className="form-input" value={user.email} disabled style={{opacity: 0.6, cursor: 'not-allowed'}} />
+                <input className="form-input" value={user.email} disabled />
             </div>
             <div className="form-group">
                 <label className="form-label">Location / City</label>
@@ -85,7 +82,7 @@ const AccountInfoModal = ({ onClose, user, onUpdate }) => {
                     onChange={e => setFormData({...formData, city: e.target.value})}
                 />
             </div>
-            <button className="primary-modal-btn" style={{width: '100%', marginTop: '10px'}} onClick={handleSubmit}>
+            <button className="primary-modal-btn" style={{width: '100%', marginTop: '20px'}} onClick={handleSubmit}>
                 Save Changes
             </button>
         </BaseModal>
@@ -106,35 +103,15 @@ const ChangePasswordModal = ({ onClose }) => (
             <label className="form-label">Confirm New Password</label>
             <input className="form-input" type="password" placeholder="Confirm new password" />
         </div>
-        <button className="primary-modal-btn" style={{width: '100%', marginTop: '10px'}} onClick={onClose}>
+        <button className="primary-modal-btn" style={{width: '100%', marginTop: '20px'}} onClick={onClose}>
             Update Password
         </button>
     </BaseModal>
 );
 
-const NotificationSettingsModal = ({ onClose, settings, onToggle }) => (
-    <BaseModal title="Notification Preferences" onClose={onClose}>
-        <div className="notification-row">
-            <div className="notification-info">
-                <h4>New Releases</h4>
-                <p>Get notified when movies in your watchlist are released.</p>
-            </div>
-            <ToggleSwitch active={settings.releases} onToggle={() => onToggle('releases')} />
-        </div>
-        <div className="notification-row">
-            <div className="notification-info">
-                <h4>Ticket Reminders</h4>
-                <p>Receive a reminder 2 hours before your showtime.</p>
-            </div>
-            <ToggleSwitch active={settings.reminders} onToggle={() => onToggle('reminders')} />
-        </div>
-        <div className="notification-row">
-            <div className="notification-info">
-                <h4>Exclusive Offers</h4>
-                <p>Discounts, coupons, and premium member deals.</p>
-            </div>
-            <ToggleSwitch active={settings.offers} onToggle={() => onToggle('offers')} />
-        </div>
+const LanguageModal = ({ onClose }) => (
+    <BaseModal title="Language Settings" onClose={onClose}>
+        <p>Language selection interface.</p>
     </BaseModal>
 );
 
@@ -158,60 +135,32 @@ const PaymentMethodsModal = ({ onClose }) => {
                         <input className="form-input" placeholder="123" type="password" />
                     </div>
                 </div>
-                <div style={{display:'flex', gap:'10px', marginTop:'10px'}}>
-                    <button className="secondary-modal-btn" style={{flex:1}} onClick={() => setView('list')}>Cancel</button>
-                    <button className="primary-modal-btn" style={{flex:1}} onClick={() => setView('list')}>Save Card</button>
-                </div>
+                <button className="primary-modal-btn" style={{width: '100%', marginTop: '20px'}} onClick={() => setView('list')}>
+                    Save Card
+                </button>
             </BaseModal>
         )
     }
 
     return (
         <BaseModal title="Payment Methods" onClose={onClose}>
-            <div className="payment-item">
-                <div style={{display:'flex', alignItems:'center', gap:'15px'}}>
-                    <div className="icon-wrapper" style={{background: '#f0f4f8', color: '#1a1a1a'}}>
-                        <CreditCard size={20} />
+            <div className="modal-section-group">
+                <div className="payment-item">
+                    <div style={{display:'flex', alignItems:'center', gap:'15px'}}>
+                        <div className="icon-wrapper" style={{background: '#f0f4f8', color: '#1a1a1a'}}>
+                            <CreditCard size={20} />
+                        </div>
+                        <div>
+                            <span style={{display:'block', fontWeight:'bold'}}>Visa ending in 4567</span>
+                            <span style={{fontSize:'0.8rem', color:'var(--text-secondary)'}}>Expires 12/26</span>
+                        </div>
                     </div>
-                    <div>
-                        <span style={{display:'block', fontWeight:'bold'}}>Visa ending in 4567</span>
-                        <span style={{fontSize:'0.8rem', color:'var(--text-secondary)'}}>Expires 12/26</span>
-                    </div>
+                    <button className="secondary-modal-btn" style={{padding:'6px 10px'}}><Trash2 size={16}/></button>
                 </div>
-                <button className="secondary-modal-btn" style={{padding:'6px 10px'}}><Trash2 size={16}/></button>
             </div>
             <button className="settings-item" style={{border:'1px dashed var(--border-color)', justifyContent:'center', marginTop:'20px'}} onClick={() => setView('add')}>
-                <Plus size={20} style={{marginRight:'8px'}}/> Add New Payment Method
+                Add New Payment Method
             </button>
-        </BaseModal>
-    );
-};
-
-const LanguageModal = ({ onClose, currentLang, setLang }) => {
-    const languages = [
-        { code: 'en', name: 'English (US)', flag: '🇺🇸' },
-        { code: 'es', name: 'Español', flag: '🇪🇸' },
-        { code: 'fr', name: 'Français', flag: '🇫🇷' },
-        { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-        { code: 'jp', name: '日本語', flag: '🇯🇵' },
-        { code: 'ph', name: 'Filipino', flag: '🇵🇭' },
-    ];
-
-    return (
-        <BaseModal title="Select Language" onClose={onClose}>
-            <div className="language-grid">
-                {languages.map(lang => (
-                    <div
-                        key={lang.code}
-                        className={`language-option ${currentLang === lang.code ? 'selected' : ''}`}
-                        onClick={() => { setLang(lang.code); onClose(); }}
-                    >
-                        <span style={{fontSize: '1.5rem'}}>{lang.flag}</span>
-                        <span style={{fontWeight: currentLang === lang.code ? 'bold' : 'normal'}}>{lang.name}</span>
-                        {currentLang === lang.code && <Check size={16} color="var(--accent)" style={{marginLeft:'auto'}} />}
-                    </div>
-                ))}
-            </div>
         </BaseModal>
     );
 };
@@ -227,17 +176,17 @@ const HelpCenterModal = ({ onClose }) => {
 
     return (
         <BaseModal title="Help Center" onClose={onClose}>
-            <div style={{marginBottom: '20px'}}>
+            <div className="modal-section-group">
                 <div className="form-group">
                     <input className="form-input" placeholder="Search for help..." />
                 </div>
             </div>
-            <div>
+            <div className="modal-section-group">
                 {faqs.map((faq, index) => (
                     <div key={index} className="faq-item">
                         <div className="faq-question" onClick={() => setOpenIndex(openIndex === index ? null : index)}>
                             {faq.q}
-                            <ChevronDown size={16} style={{transform: openIndex === index ? 'rotate(180deg)' : 'rotate(0)', transition:'0.2s'}} />
+                            <ChevronRight size={16} style={{transform: openIndex === index ? 'rotate(90deg)' : 'rotate(0)', transition:'0.2s'}} />
                         </div>
                         {openIndex === index && <div className="faq-answer">{faq.a}</div>}
                     </div>
@@ -250,20 +199,18 @@ const HelpCenterModal = ({ onClose }) => {
     );
 };
 
-// --- Booking History Modal ---
 const BookingHistoryModal = ({ onClose, userId }) => {
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // Fetches booking data when the modal is opened and userId is available
     useEffect(() => {
         const fetchBookings = async () => {
             if (!userId) {
                 setLoading(false);
                 return;
             }
-
             try {
-                // Uses the imported 'supabase' instance
                 const { data, error } = await supabase
                     .from('book_ticket')
                     .select('*')
@@ -278,21 +225,14 @@ const BookingHistoryModal = ({ onClose, userId }) => {
                 setLoading(false);
             }
         };
-
         fetchBookings();
     }, [userId]);
 
-    const formatSeats = (seats) => {
-        if (!seats) return 'No seats';
-        // Handle arrays or strings that look like arrays
-        let cleanSeats = Array.isArray(seats) ? seats.join(', ') : seats.toString().replace(/[\[\]"]/g, '').replace(/,/g, ', ');
-        return cleanSeats;
-    };
+    const formatSeats = (seats) => Array.isArray(seats) ? seats.join(', ') : (seats ? seats.toString().replace(/[\[\]"]/g, '').replace(/,/g, ', ') : 'No seats');
 
     const formatDateTime = (dateStr, timeStr) => {
         if (!dateStr) return 'Date N/A';
         const date = new Date(dateStr).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
-        // Clean time (remove seconds if present)
         const time = timeStr ? timeStr.substring(0, 5) : '';
         return time ? `${date} • ${time}` : date;
     };
@@ -306,7 +246,6 @@ const BookingHistoryModal = ({ onClose, userId }) => {
             ) : bookings.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                     {bookings.map((booking) => (
-                        // Assuming a ticket_id field exists, using a fallback key
                         <div key={booking.ticket_id || Math.random()} className="payment-item">
                             <div style={{display:'flex', alignItems:'center', gap:'15px', width: '100%'}}>
                                 <div className="icon-wrapper" style={{ minWidth: '40px' }}>
@@ -344,105 +283,123 @@ const BookingHistoryModal = ({ onClose, userId }) => {
     );
 };
 
-// --- Main Settings Page ---
+const ProfileSection = ({ userProfile, contextUser }) => {
+    const userInitial = userProfile.name ? userProfile.name.charAt(0).toUpperCase() : (contextUser.email ? contextUser.email.charAt(0).toUpperCase() : 'U');
+
+    return (
+        <div className="profile-section">
+            <div className="profile-avatar-large">{userInitial}</div>
+            <div className="profile-info">
+                <h2>{userProfile.name || 'Movie Buff'}</h2>
+                <p>{userProfile.email}</p>
+            </div>
+        </div>
+    );
+};
+
+const AccountCard = ({ setActiveModal }) => (
+    <div className="settings-card">
+        <div className="card-header">Account</div>
+        <SettingsListItem icon={User} title="Personal Info" subtitle="Name, City" onClick={() => setActiveModal('accountInfo')} />
+        <SettingsListItem icon={Lock} title="Security" subtitle="Password, 2FA" onClick={() => setActiveModal('security')} />
+    </div>
+);
+
+const ExperienceCard = ({ theme, toggleTheme, setActiveModal }) => (
+    <div className="settings-card">
+        <div className="card-header">Experience</div>
+        <div className="settings-item" onClick={toggleTheme}>
+            <div className="item-left">
+                <div className="icon-wrapper">
+                    {theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
+                </div>
+                <div>
+                    <span className="item-text-primary">Appearance</span>
+                    <span className="item-text-secondary">{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
+                </div>
+            </div>
+            <ToggleSwitch active={theme === 'dark'} onToggle={toggleTheme} />
+        </div>
+        <SettingsListItem icon={Globe} title="Language" subtitle="English (US)" onClick={() => setActiveModal('language')} />
+    </div>
+);
+
+const WalletSupportCard = ({ setActiveModal, logout }) => (
+    <div className="settings-card">
+        <div className="card-header">Wallet & Support</div>
+        <SettingsListItem icon={CreditCard} title="Payment Methods" subtitle="Visa, Mastercard" onClick={() => setActiveModal('payment')} />
+        <SettingsListItem icon={HelpCircle} title="Help Center" subtitle="FAQs and support" onClick={() => setActiveModal('help')} />
+
+        <div style={{marginTop: 'auto', paddingTop: '15px', borderTop:'1px solid var(--border-color)'}}>
+            <SettingsListItem
+                icon={LogOut} title="Log Out" subtitle="Sign out of device"
+                onClick={logout} isDanger={true} rightElement={<span></span>}
+            />
+        </div>
+    </div>
+);
 
 const SettingsPage = () => {
+    // 1. Hooks and Context
     const { theme, toggleTheme } = useTheme();
     const { logout, user: contextUser } = useAuth();
     const navigate = useNavigate();
 
+    // 2. State
     const [userProfile, setUserProfile] = useState({ id: null, name: '', email: '', city: '' });
     const [loading, setLoading] = useState(true);
     const [activeModal, setActiveModal] = useState(null);
-    const [language, setLanguage] = useState('en');
 
-    const [notifSettings, setNotifSettings] = useState({
-        releases: true,
-        reminders: true,
-        offers: false,
-        email: true
-    });
-
+    // 3. Data & Handlers
     useEffect(() => {
         const fetchUserData = async () => {
-            if (!contextUser) return;
-
+            if (!contextUser) return setLoading(false);
             try {
-                // Uses the imported 'supabase' instance
-                const { data, error } = await supabase
+                // Fetch user profile data from the 'users' table
+                const { data } = await supabase
                     .from('users')
-                    .select('*')
+                    .select('id, name, city, email')
                     .eq('email', contextUser.email)
                     .single();
-
-                if (data) {
-                    setUserProfile(data);
-                } else {
-                    setUserProfile({
-                        id: null,
-                        email: contextUser.email,
-                        name: 'Guest',
-                    });
-                }
+                setUserProfile(data || { id: null, email: contextUser.email, name: 'Guest' });
             } catch (err) {
-                console.error(err);
+                console.error("User data fetch error:", err);
             } finally {
                 setLoading(false);
             }
         };
-
         fetchUserData();
     }, [contextUser, navigate]);
 
     const handleUpdateProfile = async (updates) => {
         setUserProfile(prev => ({ ...prev, ...updates }));
         try {
-            // Uses the imported 'supabase' instance
+            // Update profile data in the 'users' table
             await supabase.from('users').update(updates).eq('email', userProfile.email);
         } catch (err) {
-            console.error('Save failed', err);
+            console.error('Profile save failed', err);
         }
     };
 
-    const toggleNotification = (key) => {
-        setNotifSettings(prev => ({ ...prev, [key]: !prev[key] }));
-    };
-
+    // 4. Render Modal Function
     const renderModal = () => {
         if (!activeModal) return null;
         const commonProps = { onClose: () => setActiveModal(null) };
 
         switch (activeModal) {
-            case 'accountInfo':
-                return <AccountInfoModal {...commonProps} user={userProfile} onUpdate={handleUpdateProfile} />;
-            case 'security':
-                return <ChangePasswordModal {...commonProps} />;
-            case 'notifications':
-                return <NotificationSettingsModal {...commonProps} settings={notifSettings} onToggle={toggleNotification} />;
-            case 'payment':
-                return <PaymentMethodsModal {...commonProps} />;
-            case 'language':
-                return <LanguageModal {...commonProps} currentLang={language} setLang={setLanguage} />;
-            case 'help':
-                return <HelpCenterModal {...commonProps} />;
+            case 'accountInfo': return <AccountInfoModal {...commonProps} user={userProfile} onUpdate={handleUpdateProfile} />;
+            case 'security': return <ChangePasswordModal {...commonProps} />;
+            case 'payment': return <PaymentMethodsModal {...commonProps} />;
+            case 'language': return <LanguageModal {...commonProps} />;
+            case 'help': return <HelpCenterModal {...commonProps} />;
             case 'bookingHistory':
-                // Passing the correct user ID (which should be an integer)
+                // Pass the user's ID to the modal to fetch specific history
                 return <BookingHistoryModal {...commonProps} userId={userProfile.id} />;
-            case 'subscription':
-                return (
-                    <BaseModal title="Subscription" onClose={() => setActiveModal(null)}>
-                        <div style={{background: 'linear-gradient(135deg, #facc15 0%, #eab308 100%)', borderRadius:'12px', padding:'20px', color:'black', marginBottom:'20px'}}>
-                            <h3 style={{fontSize:'1.5rem', fontWeight:'800'}}>Premium Member</h3>
-                            <p>Next billing date: Dec 20, 2025</p>
-                        </div>
-                        <SettingsListItem icon={CreditCard} title="Update Payment Method" subtitle="Visa **** 4567" />
-                        <button className="secondary-modal-btn" style={{marginTop:'10px', width:'100%', borderColor:'#ef4444', color:'#ef4444'}}>Cancel Subscription</button>
-                    </BaseModal>
-                )
             default: return null;
         }
     };
 
+    // 5. Main Render
     if (loading) return <div className="settings-loading">Loading...</div>;
 
     const userInitial = userProfile.name ? userProfile.name.charAt(0).toUpperCase() : (contextUser.email ? contextUser.email.charAt(0).toUpperCase() : 'U');
@@ -450,86 +407,28 @@ const SettingsPage = () => {
     return (
         <div className="settings-page" data-theme={theme}>
             <div className="settings-container">
+                {/* Header */}
                 <div className="settings-header-group">
                     <button onClick={() => navigate(-1)} className="settings-back-btn">
                         <ArrowLeft size={18} /> Back
                     </button>
                     <h1 className="settings-title">Settings</h1>
-                </div>
-
-                <div className="profile-section">
-                    <div className="profile-avatar-large">{userInitial}</div>
-                    <div className="profile-info">
-                        <h2>{userProfile.name || 'Movie Buff'}</h2>
-                        <p>{userProfile.email}</p>
-                        <span className="profile-badge">Premium Member</span>
+                    {/* Theme Toggle (Moved from Card to Header) */}
+                    <div className="settings-item" style={{ width: 'auto', padding: '0 10px' }} onClick={toggleTheme}>
+                        <div className="icon-wrapper">
+                            {theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
+                        </div>
+                        <ToggleSwitch active={theme === 'dark'} onToggle={toggleTheme} />
                     </div>
                 </div>
 
+                <ProfileSection userProfile={userProfile} contextUser={contextUser} />
+
+                {/* Settings Grid */}
                 <div className="settings-grid">
-                    <div className="settings-card">
-                        <div className="card-header">Account</div>
-                        <SettingsListItem
-                            icon={User} title="Personal Info" subtitle="Name, City"
-                            onClick={() => setActiveModal('accountInfo')}
-                        />
-                        <SettingsListItem
-                            icon={Lock} title="Security" subtitle="Password, 2FA"
-                            onClick={() => setActiveModal('security')}
-                        />
-                        <SettingsListItem
-                            icon={Globe} title="Language & Region" subtitle={language === 'en' ? 'English (US)' : 'Changed'}
-                            onClick={() => setActiveModal('language')}
-                        />
-                    </div>
-
-                    <div className="settings-card">
-                        <div className="card-header">Experience</div>
-                        <div className="settings-item" onClick={toggleTheme}>
-                            <div className="item-left">
-                                <div className="icon-wrapper">
-                                    {theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
-                                </div>
-                                <div>
-                                    <span className="item-text-primary">Appearance</span>
-                                    <span className="item-text-secondary">{theme === 'dark' ? 'Dark Mode' : 'Light Mode'}</span>
-                                </div>
-                            </div>
-                            <ToggleSwitch active={theme === 'dark'} onToggle={toggleTheme} />
-                        </div>
-
-                        <SettingsListItem
-                            icon={Bell} title="Notifications" subtitle="Email, Push"
-                            onClick={() => setActiveModal('notifications')}
-                        />
-                        <SettingsListItem
-                            icon={Ticket} title="My Subscription" subtitle="Manage plan"
-                            onClick={() => setActiveModal('subscription')}
-                        />
-                    </div>
-
-                    <div className="settings-card">
-                        <div className="card-header">Wallet & Support</div>
-                        <SettingsListItem
-                            icon={CreditCard} title="Payment Methods" subtitle="Visa, Mastercard"
-                            onClick={() => setActiveModal('payment')}
-                        />
-                        <SettingsListItem
-                            icon={Calendar} title="Booking History" subtitle="View tickets"
-                            onClick={() => setActiveModal('bookingHistory')}
-                        />
-                        <SettingsListItem
-                            icon={HelpCircle} title="Help Center" subtitle="FAQ, Contact Us"
-                            onClick={() => setActiveModal('help')}
-                        />
-
-                        <div style={{marginTop: 'auto', paddingTop: '15px', borderTop:'1px solid var(--border-color)'}}>
-                            <SettingsListItem
-                                icon={LogOut} title="Log Out" subtitle="Sign out of device"
-                                onClick={logout} isDanger={true} rightElement={<span></span>}
-                            />
-                        </div>
-                    </div>
+                    <AccountCard setActiveModal={setActiveModal} />
+                    <ExperienceCard theme={theme} toggleTheme={toggleTheme} setActiveModal={setActiveModal} />
+                    <WalletSupportCard setActiveModal={setActiveModal} logout={logout} />
                 </div>
 
             </div>

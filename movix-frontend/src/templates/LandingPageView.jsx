@@ -201,9 +201,6 @@ const LandingPageView = ({
                                 <button className="btn-primary" onClick={() => onBookTicket(featuredMovie)} style={{ boxShadow: '0 4px 15px rgba(250, 204, 21, 0.4)' }}>
                                     <Play size={24} fill="black" /> Watch Now
                                 </button>
-                                <button className="btn-secondary" onClick={() => onMovieClick(featuredMovie)} style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
-                                    + Add to List
-                                </button>
                             </div>
                         </div>
                     </section>
@@ -227,7 +224,6 @@ const LandingPageView = ({
                         <section className="movie-section" style={{ marginTop: searchQuery ? '0px' : '40px' }}>
                             <div className="section-header">
                                 <h3>Continue Watching</h3>
-                                <button className="see-all">See all →</button>
                             </div>
                             <div className="movie-row continue-row">
                                 {continueWatching.map((movie) => (
@@ -251,7 +247,6 @@ const LandingPageView = ({
                         <section className="movie-section">
                             <div className="section-header">
                                 <h3>Now Showing</h3>
-                                <button className="see-all">See all →</button>
                             </div>
                             <div className="movie-row">
                                 {nowShowing.map((movie) => (
@@ -281,7 +276,6 @@ const LandingPageView = ({
                         <section className="movie-section">
                             <div className="section-header">
                                 <h3>Popular This Week</h3>
-                                <button className="see-all">See all →</button>
                             </div>
                             <div className="movie-row">
                                 {popular.map((movie) => (
