@@ -9,7 +9,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 3rem;
+  padding: 0rem 3rem;
   background: var(--bg-nav);
   position: fixed;
   top: 0;
@@ -26,14 +26,17 @@
   gap: 3rem;
 }
 
-.logo {
-  font-size: 1.75rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: 2px;
+.logo-image {
+  height: 110px; /* Adjust size as needed */
+  width: auto;
+  cursor: pointer;
+  object-fit: contain;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.logo-image:hover {
+  opacity: 0.85;
+  transform: scale(1.05);
 }
 
 .main-nav {
@@ -924,8 +927,8 @@ html.light-mode .hero-title {
 /* New: Adjust main content padding when the Search Results Banner is visible */
 .main-content.search-active {
     /* Adjust based on top-nav height (80px) + search-results-banner height (~60px) + margin/padding.
-       A safe value to clear both fixed top-nav and the banner below it. */
-    padding-top: 140px; 
+       A safe value to clear both fixed top-nav and the banner below it. for search banneeerrrr */
+    padding-top: 150px; 
 }
 
 /* New: For mobile */

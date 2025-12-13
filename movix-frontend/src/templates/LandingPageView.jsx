@@ -61,7 +61,12 @@ const LandingPageView = ({
             {/* --- Navbar --- */}
             <header className="top-nav">
                 <div className="nav-left">
-                    <h1 className="logo">MOVIX</h1>
+                    <img 
+                        src="/src/assets/covers/logo.png" 
+                        alt="MOVIX" 
+                        className="logo-image" 
+                        style={{ cursor: 'pointer' }}
+                    />
                     <nav className="main-nav">
                         {navItems.map((item) => (
                             <button
