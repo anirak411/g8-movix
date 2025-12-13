@@ -240,7 +240,7 @@ const AdminMovieManagement = () => {
                                 <option value="now_showing">Now Showing</option>
                                 <option value="popular">Popular</option>
                                 <option value="upcoming">Upcoming</option>
-                                <option value="continue_watching">Continue Watching (Mock)</option>
+                                
                             </select>
                         </label>
 

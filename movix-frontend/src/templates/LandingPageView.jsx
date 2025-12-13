@@ -224,28 +224,7 @@ const LandingPageView = ({
                         </div>
                     )}
 
-                    {/* --- Continue Watching --- */}
-                    {continueWatching.length > 0 && (
-                        <section className="movie-section" style={{ marginTop: searchQuery ? '0px' : '40px' }}>
-                            <div className="section-header">
-                                <h3>Continue Watching</h3>
-                            </div>
-                            <div className="movie-row continue-row">
-                                {continueWatching.map((movie) => (
-                                    <div key={movie.id} className="continue-card" onClick={() => onMovieClick(movie)}>
-                                        <div className="continue-image">
-                                            <img src={movie.image} alt={movie.title} />
-                                        </div>
-                                        
-                                        <div className="continue-info">
-                                            <p className="continue-title">{movie.title}</p>
-                                            <span className="continue-duration">{movie.duration}</span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    )}
+                    
 
                     {/* --- Now Showing --- */}
                     {nowShowing.length > 0 && (
