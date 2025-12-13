@@ -4,28 +4,28 @@ import { Search, Bell, Play, Star, Settings, LogOut, X, Ticket } from 'lucide-re
 import '../css/landingpage.css';
 
 const LandingPageView = ({
-    userEmail,
-    onLogout,
-    isAdmin,
-    navItems = [],
-    activeNav,
-    setActiveNav,
-    searchOpen,
-    setSearchOpen,
-    searchQuery,
-    onSearchChange,
-    userMenuOpen,
-    setUserMenuOpen,
-    featuredMovie,
-    continueWatching = [],
-    nowShowing = [],
-    popular = [],
-    onMovieClick,
-    selectedMovie,
-    onCloseModal,
-    onBookTicket
-    
-}) => {
+                             userEmail,
+                             onLogout,
+                             isAdmin,
+                             navItems = [],
+                             activeNav,
+                             setActiveNav,
+                             searchOpen,
+                             setSearchOpen,
+                             searchQuery,
+                             onSearchChange,
+                             userMenuOpen,
+                             setUserMenuOpen,
+                             featuredMovie,
+                             continueWatching = [],
+                             nowShowing = [],
+                             popular = [],
+                             onMovieClick,
+                             selectedMovie,
+                             onCloseModal,
+                             onBookTicket
+
+                         }) => {
 
     const navigate = useNavigate();
     const [textColor, setTextColor] = useState('white');
@@ -39,7 +39,7 @@ const LandingPageView = ({
         setUserMenuOpen(false);
         navigate('/settings');
     };
-    
+
     const handleAdminDashboardClick = () => {
         setUserMenuOpen(false);
         navigate('/admin-dashboard');
@@ -61,10 +61,10 @@ const LandingPageView = ({
             {/* --- Navbar --- */}
             <header className="top-nav">
                 <div className="nav-left">
-                    <img 
-                        src="/src/assets/covers/logo.png" 
-                        alt="MOVIX" 
-                        className="logo-image" 
+                    <img
+                        src="/src/assets/covers/logo.png"
+                        alt="MOVIX"
+                        className="logo-image"
                         style={{ cursor: 'pointer' }}
                     />
                     <nav className="main-nav">
@@ -81,9 +81,9 @@ const LandingPageView = ({
                 </div>
                 <div className="nav-right">
                     <div className={`search-wrapper ${searchOpen ? 'open' : ''}`}>
-                        <Search 
-                            size={20} 
-                            className="search-icon" 
+                        <Search
+                            size={20}
+                            className="search-icon"
                             onClick={() => setSearchOpen(!searchOpen)}
                         />
                         {searchOpen && (
@@ -97,7 +97,7 @@ const LandingPageView = ({
                                     autoFocus
                                 />
                                 {searchQuery && (
-                                    <button 
+                                    <button
                                         className="clear-search-icon"
                                         onClick={clearSearch}
                                         aria-label="Clear search"
@@ -108,7 +108,7 @@ const LandingPageView = ({
                             </>
                         )}
                     </div>
-                    
+
                     <div className="user-menu">
                         <div className="user-avatar" onClick={() => setUserMenuOpen(!userMenuOpen)}>
                             {userEmail ? userEmail.charAt(0).toUpperCase() : 'U'}
@@ -124,7 +124,7 @@ const LandingPageView = ({
                                         <Settings size={16} /> Admin Dashboard
                                     </button>
                                 )}
-                                
+
                                 <button className="dropdown-item" onClick={handleSettingsClick}>
                                     <Settings size={16} /> Settings
                                 </button>
@@ -224,7 +224,7 @@ const LandingPageView = ({
                         </div>
                     )}
 
-                    
+
 
                     {/* --- Now Showing --- */}
                     {nowShowing.length > 0 && (
@@ -297,7 +297,9 @@ const LandingPageView = ({
                             backgroundColor: '#111', color: 'white', width: '100%', maxWidth: '900px',
                             borderRadius: '24px', overflow: 'hidden', display: 'flex', flexDirection: 'row',
                             boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', border: '1px solid #333',
-                            position: 'relative', maxHeight: '85vh'
+                            position: 'relative',
+                            height: '650px', // Fixed height for consistent sizing
+                            maxHeight: '90vh'
                         }}
                     >
                         <button
@@ -329,13 +331,13 @@ const LandingPageView = ({
                                 style={{
                                     width: '100%',
                                     height: '100%',
-                                    objectFit: 'contain',
+                                    objectFit: 'cover', // Ensures the image fills the container
                                     display: 'block'
                                 }}
                             />
                         </div>
 
-                        <div style={{ padding: '40px', width: '60%', overflowY: 'auto' }}>
+                        <div style={{ padding: '40px', width: '60%', overflowY: 'auto', height: '100%' }}>
                             <h2 style={{ fontSize: '2.5rem', fontWeight: '800', marginBottom: '10px', lineHeight: '1.1' }}>
                                 {selectedMovie.title}
                             </h2>
@@ -346,9 +348,27 @@ const LandingPageView = ({
                                 <span>•</span>
                                 <span>{selectedMovie.genre}</span>
                             </div>
-                            <p style={{ fontSize: '1.1rem', lineHeight: '1.6', color: '#d1d5db', marginBottom: '40px' }}>
+                            <p style={{ fontSize: '1.1rem', lineHeight: '1.6', color: '#d1d5db', marginBottom: '20px' }}>
                                 {selectedMovie.description}
                             </p>
+
+                            {/* --- DIRECTOR FIELD (Shows if selectedMovie.director is a truthy value) --- */}
+                            {selectedMovie.director && (
+                                <div style={{ marginBottom: '10px', fontSize: '1rem', color: '#fff' }}>
+                                    <strong style={{ color: '#facc15' }}>Director: </strong>
+                                    {selectedMovie.director}
+                                </div>
+                            )}
+
+                            {/* --- CAST FIELD (Shows if selectedMovie.cast exists and has length > 0) --- */}
+                            {selectedMovie.cast && selectedMovie.cast.length > 0 && (
+                                <div style={{ marginBottom: '30px', fontSize: '1rem', color: '#fff' }}>
+                                    <strong style={{ color: '#facc15' }}>Cast: </strong>
+                                    {/* Joins the array of names into a comma-separated string */}
+                                    {Array.isArray(selectedMovie.cast) ? selectedMovie.cast.join(', ') : selectedMovie.cast}
+                                </div>
+                            )}
+
                             <button
                                 onClick={() => onBookTicket(selectedMovie)}
                                 style={{

@@ -1,3 +1,7 @@
+/* ========================================================================= */
+/* 1. SEAT PAGE LAYOUT & CONTROLS STYLES (Your Original Code)                 */
+/* ========================================================================= */
+
 .seat-page {
     display: flex;
     height: 100vh;
@@ -402,6 +406,159 @@
     box-shadow: 0 10px 30px rgba(245, 197, 24, 0.3);
 }
 
+.payment-modal-overlay {
+    /* covers the entire viewport, fixed position is key */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+
+    z-index: 9999;
+
+    /* dimming effect */
+    background-color: rgba(0, 0, 0, 0.9);
+
+    /* Critical: Centers the modal content horizontally and vertically */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* Optional: Fade-in animation */
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* 2. The Payment Box Container */
+.payment-modal-content {
+    /* The box itself can be relative within the flex container */
+    position: relative;
+
+    /* Use your styling variables for a consistent look */
+    background-color: var(--bg-page, #000);
+    color: var(--text-main, #fff);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(251, 191, 36, 0.1), 0 0 0 1px rgba(255, 255, 255, 0.05);
+
+    padding: 30px;
+    width: 90%;
+    max-width: 450px; /* Limits the modal width for a clean pop-up look */
+
+    /* Optional: Scale-up animation */
+    transform: scale(1);
+    transition: transform 0.3s ease-in-out;
+}
+
+/* Modal Header and Close Button */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color, #333);
+}
+
+.modal-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary, #a1a1a1);
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: color 0.2s, background 0.2s;
+}
+
+.modal-close-btn:hover {
+    color: var(--text-main, #fff);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Total Price Display */
+.total-due {
+    font-size: 1.25rem;
+    margin-bottom: 25px;
+    text-align: center;
+    padding: 12px;
+    background-color: rgba(251, 191, 36, 0.1); /* Light accent background */
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    border-radius: 8px;
+    color: var(--text-main, #fff);
+}
+
+/* Form Styles */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 0.9em;
+    color: var(--text-secondary, #a1a1a1);
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.form-input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid var(--border-color, #333);
+    border-radius: 8px;
+    background-color: var(--bg-card, #1a1a1a); /* Dark input background */
+    color: var(--text-main, #fff);
+    font-size: 1em;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--accent, #fbbf24);
+}
+
+.primary-modal-btn {
+    width: 100%;
+    padding: 15px;
+
+    /* Uses your existing accent color */
+    background: var(--accent, #fbbf24);
+    color: var(--accent-text, #000);
+
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background 0.2s, opacity 0.2s, transform 0.2s;
+}
+
+.primary-modal-btn:hover:not(:disabled) {
+    background: var(--accent-hover, #f59e0b);
+    transform: translateY(-1px);
+}
+
+.primary-modal-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: var(--text-secondary, #666);
+}
+
+/* ========================================================================= */
+/* 3. MEDIA QUERIES                                                         */
+/* ========================================================================= */
+
 @media (max-width: 900px) {
     .seat-page {
         flex-direction: column;
@@ -432,5 +589,24 @@
     .seat {
         width: 24px;
         height: 24px;
+    }
+
+    /* Responsive adjustments for the modal on small screens */
+    .payment-modal-content {
+        padding: 20px;
+        max-width: 95%;
+    }
+
+    .modal-header h2 {
+        font-size: 1.1rem;
+    }
+
+    .total-due {
+        font-size: 1.1rem;
+    }
+
+    .primary-modal-btn {
+        font-size: 1rem;
+        padding: 12px;
     }
 }

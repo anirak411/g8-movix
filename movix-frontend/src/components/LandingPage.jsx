@@ -12,7 +12,7 @@ const LandingPage = () => {
     const userEmail = localStorage.getItem('userEmail') || 'Guest User';
 
     const [activeNav, setActiveNav] = useState('Movies');
-    const [searchOpen, setSearchOpen] = useState(false);    
+    const [searchOpen, setSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [userMenuOpen, setUserMenuOpen] = useState(false);
 
@@ -35,7 +35,6 @@ const LandingPage = () => {
 
     const getYearFromDate = (dateString) => {
         if (!dateString) return new Date().getFullYear();
-// catcher if null
         const date = new Date(dateString);
         return isNaN(date) ? new Date().getFullYear() : date.getFullYear();
     };
@@ -50,60 +49,75 @@ const LandingPage = () => {
         navigate(`/category-list/${category}`);
     };
 
-useEffect(() => {
-    const fetchMovies = async () => {
-        try {
-            // Fetch movies from the 'movie' table
-            const { data, error } = await supabase.from('movie').select('*');
-            if (error) throw error;
+    useEffect(() => {
+        const fetchMovies = async () => {
+            try {
 
-            const formattedData = data.map((m) => ({
-                id: m.id || m.moviename,
-                title: m.moviename,
-                description: m.description,
-                image: m.poster,
-                portraitImage: m.poster_portrait || m.poster,
-                rating: m.rating,
-                duration: formatDuration(m.duration),
-                genre: m.genre,
-                year: getYearFromDate(m.release_date),
-                progress: Math.floor(Math.random() * 90) + 10, // Mock progress
-                is_featured: m.is_featured,
-                category: m.category
-            }));
+                const { data, error } = await supabase.from('movie').select('*, director, cast_members');
+                if (error) throw error;
 
-            const hero = formattedData.find(m => m.is_featured === true);
-            setFeaturedMovie(hero || formattedData[0]);
+                const formattedData = data.map((m) => {
 
-            let filteredData = formattedData;
-            if (searchQuery) {
-                const query = searchQuery.toLowerCase().trim();
-                filteredData = formattedData.filter(m => {
-                    const title = (m.title || '').toLowerCase();
-                    const genre = (m.genre || '').toLowerCase();
-                    const description = (m.description || '').toLowerCase();
-                    
-                    // returns true if query matches
-                    return title.includes(query) || 
-                           genre.includes(query) || 
-                           description.includes(query);
+                    let castNames = [];
+                    if (Array.isArray(m.cast_members)) {
+
+                        castNames = m.cast_members.map(member => member.actor).filter(Boolean);
+                    }
+
+                    return {
+                        id: m.id || m.moviename,
+                        title: m.moviename,
+                        description: m.description,
+                        image: m.poster,
+                        portraitImage: m.poster_portrait || m.poster,
+                        rating: m.rating,
+                        duration: formatDuration(m.duration),
+                        genre: m.genre,
+                        year: getYearFromDate(m.release_date),
+
+                        // === CORRECTED MAPPING ===
+                        director: m.director || '', // Map director column
+                        cast: castNames,            // Map processed cast_members data to 'cast'
+                        // =========================
+
+                        progress: Math.floor(Math.random() * 90) + 10, // Mock progress
+                        is_featured: m.is_featured,
+                        category: m.category
+                    };
                 });
+
+                const hero = formattedData.find(m => m.is_featured === true);
+                setFeaturedMovie(hero || formattedData[0]);
+
+                let filteredData = formattedData;
+                if (searchQuery) {
+                    const query = searchQuery.toLowerCase().trim();
+                    filteredData = formattedData.filter(m => {
+                        const title = (m.title || '').toLowerCase();
+                        const genre = (m.genre || '').toLowerCase();
+                        const description = (m.description || '').toLowerCase();
+
+                        // returns true if query matches
+                        return title.includes(query) ||
+                            genre.includes(query) ||
+                            description.includes(query);
+                    });
+                }
+
+                // Filter by category
+                setContinueWatching(filteredData.filter(m => m.category === 'continue_watching'));
+                setNowShowing(filteredData.filter(m => m.category === 'now_showing'));
+                setPopular(filteredData.filter(m => m.category === 'popular'));
+
+                setLoading(false);
+            } catch (error) {
+                console.error("Error fetching movies:", error);
+                setLoading(false);
             }
+        };
 
-            // Filter by category
-            setContinueWatching(filteredData.filter(m => m.category === 'continue_watching'));
-            setNowShowing(filteredData.filter(m => m.category === 'now_showing'));
-            setPopular(filteredData.filter(m => m.category === 'popular'));
-
-            setLoading(false);
-        } catch (error) {
-            console.error("Error fetching movies:", error);
-            setLoading(false);
-        }
-    };
-
-    fetchMovies();
-}, [searchQuery]); // Re-run when searchQuery changes
+        fetchMovies();
+    }, [searchQuery]); // Re-run when searchQuery changes
 
     if (loading) return <div style={{height:'100vh', background:'#000', color:'white', display:'flex', alignItems:'center', justifyContent:'center'}}>Loading...</div>;
 

@@ -10,33 +10,35 @@ const BASE_URL = 'http://localhost:8081/api/v1';
 const FALLBACK_IMAGE_URL = '/images/default-poster.png';
 
 // =========================================================================
-// 1. PAYMENT MODAL COMPONENT (with Auto-Formatting)
+// 1. PAYMENT MODAL COMPONENT (The Centered Pop-up)
 // =========================================================================
 
+/**
+ * A centered modal component for handling payment details and confirmation.
+ */
 const PaymentModal = ({ onClose, onConfirm, totalPrice, movieTitle }) => {
     const [cardDetails, setCardDetails] = useState({ number: '', expiry: '', cvc: '' });
     const [isProcessing, setIsProcessing] = useState(false);
 
-    // Validation: Card number (16 digits + 3 spaces = 19 chars), Expiry (MM/YY = 5 chars), CVC (min 3 chars)
+    // Validation: Ensures all fields meet the minimum expected length.
     const isFormValid =
-        cardDetails.number.length === 19 &&
-        cardDetails.expiry.length === 5 &&
+        cardDetails.number.length === 19 && // 16 digits + 3 spaces
+        cardDetails.expiry.length === 5 &&  // MM/YY
         cardDetails.cvc.length >= 3;
 
-    // FIX: Auto-format card number with spaces (XXXX XXXX XXXX XXXX)
+    // Auto-format card number with spaces (XXXX XXXX XXXX XXXX)
     const handleCardNumberChange = (e) => {
-        let value = e.target.value.replace(/\s/g, ''); // Remove existing spaces
-        value = value.replace(/(\d{4})/g, '$1 ').trim(); // Add space after every 4 digits
+        let value = e.target.value.replace(/\s/g, '');
+        value = value.replace(/(\d{4})/g, '$1 ').trim();
         if (value.length <= 19) {
             setCardDetails({ ...cardDetails, number: value });
         }
     };
 
-    // FIX: Auto-format expiry date (MM/YY) and insert '/'
+    // Auto-format expiry date (MM/YY) and insert '/'
     const handleExpiryChange = (e) => {
-        let value = e.target.value.replace(/\//g, ''); // Remove existing slashes
+        let value = e.target.value.replace(/\//g, '');
 
-        // Ensure month is 2 digits before adding slash
         if (value.length > 2) {
             value = value.substring(0, 2) + '/' + value.substring(2, 4);
         }
@@ -50,9 +52,9 @@ const PaymentModal = ({ onClose, onConfirm, totalPrice, movieTitle }) => {
         e.preventDefault();
         if (isFormValid) {
             setIsProcessing(true);
-            // Simulate payment processing delay
+            // Simulate payment processing delay (1 second)
             setTimeout(() => {
-                onConfirm();
+                onConfirm(); // Triggers the parent's final booking logic
             }, 1000);
         } else {
             alert("Please check your payment details.");
@@ -60,6 +62,7 @@ const PaymentModal = ({ onClose, onConfirm, totalPrice, movieTitle }) => {
     };
 
     return (
+        // The overlay element ensures the full-screen pop-up effect (requires specific CSS)
         <div className="payment-modal-overlay" onClick={onClose}>
             <div className="payment-modal-content" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
@@ -114,8 +117,6 @@ const PaymentModal = ({ onClose, onConfirm, totalPrice, movieTitle }) => {
                             </div>
                         </div>
 
-                        {/* Billing Address removed as requested */}
-
                         <button type="submit" className="primary-modal-btn" disabled={!isFormValid || isProcessing}>
                             {isProcessing ? 'Processing Payment...' : `Pay ₱${totalPrice.toFixed(2)} & Confirm Booking`}
                         </button>
@@ -128,7 +129,7 @@ const PaymentModal = ({ onClose, onConfirm, totalPrice, movieTitle }) => {
 
 
 // =========================================================================
-// 2. SEAT SELECTION PAGE COMPONENT (Ref-Based Stabilization)
+// 2. SEAT SELECTION PAGE COMPONENT
 // =========================================================================
 
 const SeatSelectionPage = () => {
@@ -142,6 +143,7 @@ const SeatSelectionPage = () => {
         image: FALLBACK_IMAGE_URL
     };
 
+    // --- Date Generation Memo ---
     const dates = useMemo(() => {
         const dateList = [];
         const today = new Date();
@@ -169,23 +171,24 @@ const SeatSelectionPage = () => {
     const SEAT_ROWS = 6;
     const SEAT_COLS = 15;
 
+    // --- State Variables ---
     const [selectedDateIndex, setSelectedDateIndex] = useState(0);
     const [selectedCinema, setSelectedCinema] = useState(cinemas[0]);
     const [selectedTime, setSelectedTime] = useState(showTimes[0]);
     const [selectedSeats, setSelectedSeats] = useState([]);
     const [seats, setSeats] = useState(Array(SEAT_ROWS).fill(0).map(() => Array(SEAT_COLS).fill(0)));
     const [isLoadingSeats, setIsLoadingSeats] = useState(false);
-    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false); // Controls the modal visibility
 
-    // FIX: Ref for stability. Reads the LATEST value of selectedSeats without causing useEffect loops.
+    // --- Refs for Stability ---
     const selectedSeatsRef = useRef(selectedSeats);
 
-    // FIX: Keep the ref updated on every render
+    // Keep the ref updated on every render
     useEffect(() => {
         selectedSeatsRef.current = selectedSeats;
     });
 
-    // FINAL FIX: Stabilized fetch function
+    // --- Seat Fetching Logic ---
     const fetchBookedSeats = useCallback(async () => {
         setIsLoadingSeats(true);
         const currentDateStr = dates[selectedDateIndex]?.fullDate;
@@ -239,13 +242,13 @@ const SeatSelectionPage = () => {
         } finally {
             setIsLoadingSeats(false);
         }
-    }, [selectedDateIndex, selectedTime, movie.title, dates]); // Stable dependencies array
+    }, [selectedDateIndex, selectedTime, movie.title, dates]);
 
     useEffect(() => {
-        // Runs on mount and when showtime/date/movie changes
         fetchBookedSeats();
     }, [fetchBookedSeats]);
 
+    // --- Seat Interaction Logic ---
     const handleSeatClick = (rowIndex, seatIndex) => {
         if (isLoadingSeats || seats[rowIndex][seatIndex] === 1) return;
 
@@ -274,7 +277,9 @@ const SeatSelectionPage = () => {
         }
     };
 
-    // --- Initiates the Payment Modal ---
+    // --- Payment Flow Handlers ---
+
+    // 1. Opens the Payment Modal Pop-up
     const handleOpenPayment = () => {
         if (selectedSeats.length === 0) {
             alert('Please select at least one seat to proceed.');
@@ -290,7 +295,7 @@ const SeatSelectionPage = () => {
         setIsPaymentModalOpen(true);
     };
 
-    // --- Finalizes Booking after payment confirmation ---
+    // 2. Finalizes Booking (called by PaymentModal after successful simulation)
     const handleFinalizeBooking = async () => {
         setIsPaymentModalOpen(false);
 
@@ -308,6 +313,7 @@ const SeatSelectionPage = () => {
 
             alert(`Booking successful! Seats: ${selectedSeats.join(', ')}. Total: ₱${payload.total_price}`);
 
+            // Mark selected seats (2) as permanently booked (1) in local state
             const newlyBookedSeats = seats.map((row) =>
                 row.map((seat) => (seat === 2 ? 1 : seat))
             );
@@ -319,18 +325,8 @@ const SeatSelectionPage = () => {
             console.error('Booking failed:', err);
 
             if (err.response) {
-                const status = err.response.status;
-                const message = err.response.data || 'An unexpected error occurred.';
-
-                if (status === 409) {
-                    alert('Booking Conflict: ' + message);
-                } else if (status === 404) {
-                    alert('Booking failed: User not found or invalid endpoint.');
-                } else if (status >= 500) {
-                    alert('Booking failed due to a critical server error. Please try again later.');
-                } else {
-                    alert('Booking failed: ' + message);
-                }
+                const message = err.response.data?.message || 'An unexpected error occurred.';
+                alert('Booking failed: ' + message);
             } else {
                 alert('Could not connect to the booking service. Check your network or server status.');
             }
@@ -459,7 +455,7 @@ const SeatSelectionPage = () => {
                 </button>
             </div>
 
-            {/* --- Render the Payment Modal --- */}
+            {/* --- Render the Payment Modal Pop-up --- */}
             {isPaymentModalOpen && (
                 <PaymentModal
                     onClose={() => setIsPaymentModalOpen(false)}
