@@ -5,17 +5,14 @@ public class JwtResponse {
     private String type = "Bearer";
     private Long id;
     private String email;
-    private Boolean isAdmin; // <-- NEW FIELD ADDED
+    private Boolean isAdmin;
 
-    // Updated Constructor to include isAdmin
     public JwtResponse(String token, Long id, String email, Boolean isAdmin) {
         this.token = token;
         this.id = id;
         this.email = email;
-        this.isAdmin = isAdmin; // <-- Assign new field
+        this.isAdmin = isAdmin;
     }
-
-    // Getters and Setters
 
     public String getToken() {
         return token;
@@ -49,12 +46,11 @@ public class JwtResponse {
         this.email = email;
     }
 
-    // Getter for the new isAdmin field
+    // admin setter getter
+
     public Boolean getIsAdmin() {
         return isAdmin;
     }
-
-    // Setter for the new isAdmin field
     public void setIsAdmin(Boolean isAdmin) {
         this.isAdmin = isAdmin;
     }

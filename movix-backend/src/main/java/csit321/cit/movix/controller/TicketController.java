@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-// --- DTO to receive the JSON payload ---
 class BookTicketRequest {
     public String userid;
     public String moviename;
@@ -23,7 +22,6 @@ class BookTicketRequest {
     public List<String> seats;
     public Double total_price;
 }
-// ---------------------------------------
 
 @RestController
 @RequestMapping("/api/v1")
@@ -38,11 +36,11 @@ public class TicketController {
         this.userRepository = userRepository;
     }
 
-    // --- 1. POST: Book Ticket Endpoint ---
+    // book ticket req
     @PostMapping("/book-ticket")
     public ResponseEntity<String> bookTicket(@RequestBody BookTicketRequest request) {
 
-        // 1. Validate and retrieve the User
+        // retrieve user info
         Long userId;
         try {
             userId = Long.valueOf(request.userid);
@@ -55,7 +53,7 @@ public class TicketController {
                         HttpStatus.NOT_FOUND, "User with ID " + request.userid + " not found for booking."
                 ));
 
-        // Parse date and time
+        // record time and date
         LocalDate showDate;
         LocalTime showTime;
         try {
@@ -65,8 +63,7 @@ public class TicketController {
             return ResponseEntity.badRequest().body("Invalid date or time format. Use ISO-8601 format (yyyy-MM-dd and HH:mm:ss).");
         }
 
-
-        // 2. DOUBLE BOOKING PREVENTION
+        // prevent double booking -- ticjket count should initially be zero for booking to be successfully initiated
         for (String seatId : request.seats) {
             long count = ticketRepository.countExistingBookings(
                     request.moviename,
@@ -81,7 +78,8 @@ public class TicketController {
             }
         }
 
-        // 3. Map to the Ticket Entity
+        // ticket mapping
+
         Ticket ticket = new Ticket();
         ticket.setMoviename(request.moviename);
         ticket.setUser(user);
@@ -91,7 +89,7 @@ public class TicketController {
         ticket.setTotalPrice(request.total_price);
 
         try {
-            // 4. Save to the database
+            // save to database
             ticketRepository.save(ticket);
             return ResponseEntity.status(HttpStatus.CREATED).body("Booking successful!");
         } catch (Exception e) {
@@ -101,7 +99,7 @@ public class TicketController {
         }
     }
 
-    // --- 2. GET: Fetch Booked Seats Endpoint ---
+    // record booked seats
     @GetMapping("/booked-seats")
     public ResponseEntity<List<String>> getBookedSeats(
             @RequestParam("moviename") String movieName,

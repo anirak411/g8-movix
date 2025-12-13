@@ -14,10 +14,6 @@ public class Ticket {
 
     private String moviename;
 
-    /**
-     * CRITICAL FIX: The @JoinColumn ensures Hibernate maps the 'user'
-     * field to the 'user_id' column in the database.
-     */
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -34,8 +30,6 @@ public class Ticket {
 
     @Column(name = "total_price")
     private Double totalPrice;
-
-    // --- Getters and Setters ---
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

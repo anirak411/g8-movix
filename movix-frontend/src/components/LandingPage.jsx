@@ -5,7 +5,8 @@ import { supabase } from '../supabaseClient';
 import LandingPageView from '../templates/LandingPageView';
 
 const LandingPage = () => {
-    // 1. Get isAdmin from AuthContext
+
+    // check if user is admin or not
     const { logout, isAdmin } = useAuth();
     const navigate = useNavigate();
     const userEmail = localStorage.getItem('userEmail') || 'Guest User';
@@ -34,7 +35,7 @@ const LandingPage = () => {
 
     const getYearFromDate = (dateString) => {
         if (!dateString) return new Date().getFullYear();
-        // Handle cases where release_date might be null or invalid
+// catcher if null
         const date = new Date(dateString);
         return isNaN(date) ? new Date().getFullYear() : date.getFullYear();
     };
@@ -45,10 +46,7 @@ const LandingPage = () => {
     const handleNavigateSettings = () => navigate('/settings');
     const handleSearchChange = (e) => setSearchQuery(e.target.value);
 
-    // NEW FUNCTION: Handles "See All" button clicks
     const handleSeeAllClick = (category) => {
-        // Navigates to a new route, passing the category name as state/URL parameter.
-        // You will need to create a new component and route for '/category-list/:category'
         navigate(`/category-list/${category}`);
     };
 
@@ -77,7 +75,6 @@ useEffect(() => {
             const hero = formattedData.find(m => m.is_featured === true);
             setFeaturedMovie(hero || formattedData[0]);
 
-            // ENHANCED SEARCH LOGIC - searches title, genre, AND description
             let filteredData = formattedData;
             if (searchQuery) {
                 const query = searchQuery.toLowerCase().trim();
@@ -86,7 +83,7 @@ useEffect(() => {
                     const genre = (m.genre || '').toLowerCase();
                     const description = (m.description || '').toLowerCase();
                     
-                    // Returns true if query matches title, genre, OR description
+                    // returns true if query matches
                     return title.includes(query) || 
                            genre.includes(query) || 
                            description.includes(query);
@@ -114,7 +111,7 @@ useEffect(() => {
         <LandingPageView
             userEmail={userEmail}
             onLogout={logout}
-            isAdmin={isAdmin} // <-- NEW: Pass isAdmin to the view component
+            isAdmin={isAdmin}
             navItems={navItems}
             activeNav={activeNav}
             setActiveNav={setActiveNav}

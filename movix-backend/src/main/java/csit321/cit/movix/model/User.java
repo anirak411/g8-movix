@@ -31,7 +31,7 @@ public class User {
     @Column(name = "is_admin", nullable = false)
     private Boolean isAdmin = false;
 
-    // Keep only this custom constructor
+    // keep only this custom constructor
     public User(String email, String password) {
         this.email = email;
         this.password = password;
