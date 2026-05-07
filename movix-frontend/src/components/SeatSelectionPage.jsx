@@ -6,7 +6,7 @@ import '../css/seatselection.css';
 import { useAuth } from '../context/AuthContext';
 
 const PRICE_PER_SEAT = 200;
-const BASE_URL = 'http://localhost:8081/api/v1';
+const BASE_URL = '/api/v1';
 const FALLBACK_IMAGE_URL = '/images/default-poster.png';
 
 // =========================================================================
