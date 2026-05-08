@@ -1,6 +1,6 @@
 // src/services/AuthService.js
 
-const API_BASE_URL = 'http://localhost:8081/api/auth'; // Ensure this matches your running Spring Boot server
+const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api/auth`;
 
 // --- Register Function (POST /api/auth/register) ---
 export const register = async (email, password) => {
