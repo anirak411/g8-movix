@@ -1,12 +1,9 @@
-// src/components/CategoryListingPage.jsx
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Star } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 import '../css/landingpage.css';
 
-// Helper function to format duration (copied for completeness)
 const formatDuration = (minutes) => {
     if (!minutes) return '0m';
     const h = Math.floor(minutes / 60);
@@ -14,7 +11,6 @@ const formatDuration = (minutes) => {
     return `${h}h ${m}m`;
 };
 
-// Function to format the category slug for the display title
 const formatCategoryTitle = (categorySlug) => {
     return categorySlug
         ? categorySlug.replace(/_/g, ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
@@ -22,24 +18,20 @@ const formatCategoryTitle = (categorySlug) => {
 };
 
 const CategoryListingPage = () => {
-    const { category } = useParams(); // Gets the slug from the URL (e.g., 'now_showing')
+    const { category } = useParams();
     const navigate = useNavigate();
     const [movies, setMovies] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Calculate formatted title once per render/category change
     const formattedCategory = formatCategoryTitle(category);
 
     useEffect(() => {
 
-        // Define the inner fetching logic
         const fetchMoviesByCategory = async () => {
             setLoading(true);
             setError(null);
             try {
-                // Fetch movies and FILTER DIRECTLY by the URL category slug
-                // This is the most reliable, non-hardcoded way to get category-specific data.
                 const { data, error } = await supabase
                     .from('movie')
                     .select('*')

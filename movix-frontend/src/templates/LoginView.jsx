@@ -74,10 +74,6 @@ const LoginView = ({
                                 </div>
                             </div>
 
-                            <div className="form-options">
-                                <a href="#" className="forgot-link">Forgot password?</a>
-                            </div>
-
                             <button type="submit" className="auth-btn" disabled={loading}>
                                 {loading ? 'Signing in...' : 'Login'}
                             </button>

@@ -56,7 +56,7 @@ const MovieDetailsPage = () => {
     };
 
     const handleBack = () => {
-        navigate(-1); // This goes back to exactly where you were in history
+        navigate(-1); // this goes back to exactly where you were in history
     };
 
     const handleBuyTickets = () => {

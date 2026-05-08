@@ -13,11 +13,9 @@ const Login = () => {
     const [posterMovie, setPosterMovie] = useState(null);
 
     const navigate = useNavigate();
-    // Destructure the login function from the updated AuthContext
     const { login } = useAuth(); 
 
     useEffect(() => {
-        // ... (Supabase fetchPosterMovie logic remains the same)
         const fetchPosterMovie = async () => {
             try {
                 const { data } = await supabase
@@ -51,20 +49,11 @@ const Login = () => {
             const data = await response.json();
 
             if (response.ok) {
-                // 1. Destructure ALL fields from the backend response
-                // Remember: 'email' is already available from component state.
-                const { token, id, isAdmin } = data; 
-                
-                // 2. CRITICAL FIX: Call the context's login function to save 
-                //    the user session and the isAdmin status.
+                const { token, id, isAdmin } = data;
                 login(token, email, id, isAdmin);
-                
-                // 3. Conditional Redirection
                 if (isAdmin === true) {
-                    // User is an admin, redirect to the admin page
                     navigate('/admin-dashboard'); 
                 } else {
-                    // User is a normal user, redirect to the normal page
                     navigate('/landing');
                 }
                 
